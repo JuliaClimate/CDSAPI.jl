@@ -1,0 +1,13 @@
+name = "CDSAPI"
+uuid = "8a7b9de3-9c00-473e-88b4-7eccd7ef2fea"
+authors = ["Micky Yun Chan <michan@redhat.com> and contributors"]
+version = "0.1.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
