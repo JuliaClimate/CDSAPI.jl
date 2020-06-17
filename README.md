@@ -1,5 +1,7 @@
 # CDSAPI
-Example 
+## Example 
+<br />
+include("CDSAPI.jl")
 <br />
 name = "reanalysis-era5-single-levels" 
 <br />
@@ -11,4 +13,7 @@ params = Dict(
        "format"=> "netcdf",
 )
 <br />
+res = CDSAPI.retrieve(name, params)
+<br />
 download(res["location"], "get_data.nc")
+<br />
