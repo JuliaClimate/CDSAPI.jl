@@ -1,4 +1,7 @@
 # CDSAPI
+
+## First put your API key in src/c.json in the key value
+
 ## Example 
 <br />
 include("CDSAPI.jl")
