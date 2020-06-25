@@ -16,7 +16,5 @@ params = Dict(
        "format"=> "netcdf",
 )
 <br />
-res = CDSAPI.retrieve(name, params)
-<br />
-download(res["location"], "get_data.nc")
+res = CDSAPI.retrieve(name, params, "get_data.nc")
 <br />
