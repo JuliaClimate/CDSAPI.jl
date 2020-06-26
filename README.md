@@ -1,27 +1,26 @@
-# CDSAPI
-## Example 
-First copy your key and url found on copernicus into the file $HOME/.cdsapirc
+# CDSAPI.jl
 
+This package provides access to the [Climate Data Store](https://cds.climate.copernicus.eu) (a.k.a. CDS) service.
 
-<br />
-include("CDSAPI.jl")
-<br />
-name = "reanalysis-era5-single-levels" 
-<br />
-params = Dict(
-       "variable"=> "2t",
-       "product_type"=> "reanalysis",
-       "date"=> "2015-12-01",
-       "time"=> "14:00",
-       "format"=> "netcdf",
-)
-<br />
-res = CDSAPI.retrieve(name, params, "get_data.nc")
-<br />
-<br />
-alternativly you can convert python dict to julia dict using
-for example the following Python call:
-<br />
+The CDS website provides a [Show API request](https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels-monthly-means?tab=form) button at the bottom of the download tab of each dataset. This button generates the code to download the dataset with the Python cdsapi module. We've designed this Julia package so that one could copy/paste the generated Python code with minimum modification in Julia.
+
+## Installation
+
+Please install the package with Julia's package manager:
+
+```julia
+] add CDSAPI
+```
+
+## Usage
+
+Make sure your `~/.cdsapirc` file exists. Instructions on how to create the file for your user account can be found [here](https://cds.climate.copernicus.eu/api-how-to).
+
+Suppose that the `Show API request` button generated the following Python code:
+
+```python
+#!/usr/bin/env python
+import cdsapi
 c = cdsapi.Client()
 c.retrieve("insitu-glaciers-elevation-mass",
 {
@@ -31,11 +30,13 @@ c.retrieve("insitu-glaciers-elevation-mass",
 "format": "tgz"
 },
 "download.tar.gz")
-<br />
-could be easily converted into a Julia call as:
-<br />
+```
+
+You can obtain the same results in Julia with the following code:
+
+```julia
 using CDSAPI
-<br />
+
 CDSAPI.retrieve("insitu-glaciers-elevation-mass",
 py2ju("""
 {
@@ -45,4 +46,11 @@ py2ju("""
 "format": "tgz"
 }
 """),
-"download.tar.gz"
+"download.tar.gz")
+```
+
+We've copied/pasted the code and called the `py2ju` function (exported by CDSAPI.jl) on the second argument of the `retrieve` function. The `py2ju` function simply converts the string containing a Python dictionary to an actual Julia dictionary.
+
+## Authors
+
+@michiboo @juliohm
