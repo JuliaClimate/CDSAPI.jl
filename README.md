@@ -18,7 +18,7 @@ params = Dict(
 <br />
 res = CDSAPI.retrieve(name, params, "get_data.nc")
 <br />
-
+<br />
 alternativly you can convert python dict to julia dict using
 for example the following Python call:
 <br />
@@ -33,9 +33,9 @@ c.retrieve("insitu-glaciers-elevation-mass",
 "download.tar.gz")
 <br />
 could be easily converted into a Julia call as:
-
+<br />
 using CDSAPI
-
+<br />
 CDSAPI.retrieve("insitu-glaciers-elevation-mass",
 py2ju("""
 {
