@@ -1,8 +1,8 @@
 # CDSAPI
-
-## First put your API key in src/c.json in the key value
-
 ## Example 
+First copy your key and url found on copernicus into the file $HOME/.cdsapirc
+
+
 <br />
 include("CDSAPI.jl")
 <br />
