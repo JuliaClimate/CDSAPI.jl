@@ -19,7 +19,7 @@ function retrieve(name, params, filename)
     apikey = string("Basic ", base64encode(creds["key"]))
     response = HTTP.request(
         "POST",
-        "$creds[\"url\"]/resources/$name",
+        creds["url"] * "/resources/$name",
         ["Authorization" => apikey],
         body=JSON.json(params),
         verbose=1)
