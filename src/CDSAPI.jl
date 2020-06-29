@@ -1,28 +1,34 @@
 module CDSAPI
 
-export py2ju, retrieve
+using HTTP
+using JSON
+using Base64
 
-using HTTP, JSON, Base64
+export
+    py2ju
 
 function retrieve(name, params, filename)
-    cred = Dict()
-    open(joinpath(homedir(), ".cdsapirc"), "r") do f
-        dicttxt = readlines(f)
-        for i in dicttxt
-            tmp = split(i, ":"; limit=2)
-            cred[tmp[1]] = lstrip(tmp[2])
+    creds = Dict()
+    open(joinpath(homedir(),".cdsapirc")) do f
+        for line in readlines(f)
+            key, val = strip.(split(line,':', limit=2))
+            creds[key] = val
         end
     end
 
-    key = string("Basic ", base64encode(cred["key"]))
-    r = HTTP.request("POST", joinpath(cred["url"], "resources/$name"), ["Authorization" => key], body=JSON.json(params), verbose=1)
-    str = String(r.body)
-    resp_json = JSON.Parser.parse(str)
+    apikey = string("Basic ", base64encode(creds["key"]))
+    response = HTTP.request(
+        "POST",
+        creds["url"] * "/resources/$name",
+        ["Authorization" => apikey],
+        body=JSON.json(params),
+        verbose=1)
 
+    resp_json = JSON.Parser.parse(string(response.body))
     data = Dict("state" => "queued")
     while data["state"] != "completed"
-        data = HTTP.request("GET", joinpath(cred["url"], "tasks", resp_json["request_id"]),  ["Authorization" => key])
-        data = JSON.Parser.parse(String(data.body))
+        data = HTTP.request("GET", creds["url"] * "/tasks/" * string(resp_json["request_id"]),  ["Authorization" => key])
+        data = JSON.Parser.parse(string(data.body))
         println("request queue status ", data["state"])
     end
 
