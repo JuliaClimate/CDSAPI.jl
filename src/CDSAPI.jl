@@ -9,10 +9,11 @@ export
 
 function retrieve(name, params, filename)
     creds = Dict()
-    lines = readlines(open(joinpath(homedir(), ".cdsapirc"), "r"))
-    for line in lines
-        key, val = strip.(split(line, ":"; limit=2))
-        creds[key] = val
+    open(joinpath(homedir(),".cdsapirc")) do f
+        for line in readlines(f)
+            key, val = strip.(split(line,':', limit=2))
+            creds[key] = val
+        end
     end
 
     apikey = string("Basic ", base64encode(creds["key"]))
