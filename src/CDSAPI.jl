@@ -24,11 +24,11 @@ function retrieve(name, params, filename)
         body=JSON.json(params),
         verbose=1)
 
-    resp_json = JSON.Parser.parse(String(response.body))
+    resp_json = JSON.Parser.parse(string(response.body))
     data = Dict("state" => "queued")
     while data["state"] != "completed"
-        data = HTTP.request("GET", joinpath(creds["url"], "tasks", resp_json["request_id"]),  ["Authorization" => key])
-        data = JSON.Parser.parse(String(data.body))
+        data = HTTP.request("GET", creds["url"] * "/tasks/" * string(resp_json["request_id"]),  ["Authorization" => key])
+        data = JSON.Parser.parse(string(data.body))
         println("request queue status ", data["state"])
     end
 
