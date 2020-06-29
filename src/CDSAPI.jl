@@ -1,8 +1,11 @@
 module CDSAPI
 
-export py2ju, retrieve
+using HTTP
+using JSON
+using Base64
 
-using HTTP, JSON, Base64
+export
+    py2ju
 
 function retrieve(name, params, filename)
     cred = Dict()
