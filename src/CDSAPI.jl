@@ -9,7 +9,7 @@ export
 
 """
     retrieve(name::AbstractString,
-        params::Dict{T, V},
+        params::Dict,
         filename::AbstractString)
 
 Retrieves data for `name` from the Climate Data Store
