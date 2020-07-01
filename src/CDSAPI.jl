@@ -8,15 +8,13 @@ export
     py2ju
 
 """
-    retrieve(name::AbstractString,
-        params::Dict,
-        filename::AbstractString)
+    retrieve(name, params, filename)
 
 Retrieves data for `name` from the Climate Data Store
 with the specified `params` and stores it in the current
 directory as `filename`.
 """
-function retrieve(name::AbstractString, params::Dict, filename::AbstractString)
+function retrieve(name, params, filename)
     creds = Dict()
     open(joinpath(homedir(),".cdsapirc")) do f
         for line in readlines(f)
@@ -46,7 +44,7 @@ function retrieve(name::AbstractString, params::Dict, filename::AbstractString)
 end
 
 """
-    py2ju(dictstr::AbstractString)
+    py2ju(dictstr)
 
 Takes a Python dictionary as string and converts it into Julia's `Dict`
 
@@ -70,7 +68,7 @@ Dict{String,Any} with 5 entries:
 
 ```
 """
-function py2ju(dictstr::AbstractString)
+function py2ju(dictstr)
     dictstr_cpy = replace(dictstr, "'" => "\"")
     lastcomma_pos = findlast(",", dictstr_cpy).start
 
