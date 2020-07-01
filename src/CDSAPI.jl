@@ -37,6 +37,16 @@ function retrieve(name, params, filename)
     data
 end
 
-py2ju(dictstr::String) = JSON.parse(dictstr)
+function py2ju(dictstr::AbstractString)
+    dictstr_cpy = replace(dictstr, "'" => "\"")
+    lastcomma_pos = findlast(",", dictstr_cpy).start
+
+    # if there's no pair after the last comma
+    if findnext(":", dictstr_cpy, lastcomma_pos) == nothing
+        # remove the comma
+        dictstr_cpy = dictstr_cpy[begin:lastcomma_pos - 1] * dictstr_cpy[lastcomma_pos + 1:end]
+    end
+    return JSON.parse(dictstr_cpy)
+end
 
 end # module
