@@ -7,6 +7,13 @@ using Base64
 export
     py2ju
 
+"""
+    retrieve(name, params, filename)
+
+Retrieves data for `name` from the Climate Data Store
+with the specified `params` and stores it in the current
+directory as `filename`.
+"""
 function retrieve(name, params, filename)
     creds = Dict()
     open(joinpath(homedir(),".cdsapirc")) do f
@@ -33,10 +40,34 @@ function retrieve(name, params, filename)
     end
 
     download(data["location"], filename)
-
-    data
+    return data
 end
 
+"""
+    py2ju(dictstr)
+
+Takes a Python dictionary as string and converts it into Julia's `Dict`
+
+# Examples
+```julia-repl
+julia> str = \"""{
+               "format": "zip",
+               "variable": "surface_air_temperature",
+               "product_type": "climatology",
+               "month": "08",
+               "origin": "era_interim"
+           }\""";
+
+julia> py2ju(str)
+Dict{String,Any} with 5 entries:
+  "format"       => "zip"
+  "month"        => "08"
+  "product_type" => "climatology"
+  "variable"     => "surface_air_temperature"
+  "origin"       => "era_interim"
+
+```
+"""
 function py2ju(dictstr)
     dictstr_cpy = replace(dictstr, "'" => "\"")
     lastcomma_pos = findlast(",", dictstr_cpy).start
