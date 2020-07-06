@@ -51,6 +51,6 @@ py2ju("""
 
 We've copied/pasted the code and called the `py2ju` function (exported by CDSAPI.jl) on the second argument of the `retrieve` function. The `py2ju` function simply converts the string containing a Python dictionary to an actual Julia dictionary.
 
-## Authors
+## Contributors
 
-@michiboo @juliohm
+@michiboo @juliohm @LakshyaKhatri
