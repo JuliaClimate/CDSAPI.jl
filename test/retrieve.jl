@@ -1,3 +1,5 @@
+datadir = joinpath(@__DIR__,"data")
+
 @testset "ERA5 data" begin
     name = "reanalysis-era5-pressure-levels-monthly-means"
     params = """{
@@ -9,11 +11,7 @@
             'month': '03',
             'time': '12:00',
         }"""
-
-    if !isdir("data")
-        mkdir("data")
-    end
-    filepath = "data/era5.grib"
+    filepath = joinpath(datadir, "era5.grib")
 
     @testset "Retrieve" begin
         data = CDSAPI.retrieve(name, py2ju(params), filepath)
@@ -22,8 +20,8 @@
         @test data["content_type"] == "application/x-grib"
     end
 
-    @testset "ERA5 data" begin
+    @testset "Data" begin
         @test isfile("data/era5.grib")
-        rm("data/era5.grib")
+        rm(filepath)
     end
 end
