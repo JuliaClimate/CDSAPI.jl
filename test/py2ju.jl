@@ -1,6 +1,3 @@
-using CDSAPI
-using Test
-
 @testset "Py2Ju" begin
     pydict_str = """{
                'format': 'tgz',

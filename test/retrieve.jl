@@ -1,6 +1,3 @@
-using CDSAPI
-using Test
-
 @testset "ERA5 data" begin
     name = "reanalysis-era5-pressure-levels-monthly-means"
     params = """{
