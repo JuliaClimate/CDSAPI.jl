@@ -77,6 +77,18 @@ function py2ju(dictstr)
         # remove the comma
         dictstr_cpy = dictstr_cpy[begin:lastcomma_pos - 1] * dictstr_cpy[lastcomma_pos + 1:end]
     end
+
+    # removes trailing comma from a list
+    listend = 0
+    while true
+        listend = findnext(']', dictstr_cpy, listend + 1)
+        listend = listend === nothing ? break : listend
+        lastcomma_pos = findprev(",", dictstr_cpy, listend).start
+        if all(isspace, dictstr_cpy[lastcomma_pos+1:listend-1])
+            dictstr_cpy = dictstr_cpy[begin:lastcomma_pos - 1] * dictstr_cpy[lastcomma_pos + 1:end]
+        end
+    end
+
     return JSON.parse(dictstr_cpy)
 end
 
