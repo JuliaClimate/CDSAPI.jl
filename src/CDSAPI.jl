@@ -51,11 +51,11 @@ Takes a Python dictionary as string and converts it into Julia's `Dict`
 # Examples
 ```julia-repl
 julia> str = \"""{
-               "format": "zip",
-               "variable": "surface_air_temperature",
-               "product_type": "climatology",
-               "month": "08",
-               "origin": "era_interim"
+               'format': 'zip',
+               'variable': 'surface_air_temperature',
+               'product_type': 'climatology',
+               'month': '08',
+               'origin': 'era_interim',
            }\""";
 
 julia> py2ju(str)
