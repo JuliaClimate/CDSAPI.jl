@@ -15,6 +15,7 @@ julia = "1"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+GRIB = "b16dfd50-4035-11e9-28d4-9dfe17e6779b"
 
 [targets]
-test = ["Test"]
+test = ["Test", "GRIB"]
