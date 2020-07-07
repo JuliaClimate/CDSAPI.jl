@@ -1,27 +1,37 @@
-datadir = joinpath(@__DIR__,"data")
+using GRIB
 
-@testset "ERA5 data" begin
-    name = "reanalysis-era5-pressure-levels-monthly-means"
-    params = """{
-            'format': 'grib',
-            'product_type': 'monthly_averaged_ensemble_members_by_hour_of_day',
-            'variable': 'divergence',
-            'pressure_level': '775',
-            'year': '2020',
-            'month': '03',
-            'time': '12:00',
-        }"""
-    filepath = joinpath(datadir, "era5.grib")
+@testset "Retrieve" begin
+    datadir = joinpath(@__DIR__,"data")
 
-    @testset "Retrieve" begin
-        data = CDSAPI.retrieve(name, py2ju(params), filepath)
-        @test typeof(data) <: Dict
-        @test data["result_provided_by"] == "dd02ed70-03e3-4989-b5a3-9b551adbd4e3"
-        @test data["content_type"] == "application/x-grib"
-    end
+    @testset "ERA5 monthly preasure data" begin
+        filepath = joinpath(datadir, "era5.grib")
+        response = CDSAPI.retrieve("reanalysis-era5-pressure-levels-monthly-means",
+            py2ju("""{
+                    'format': 'grib',
+                    'product_type': 'monthly_averaged_reanalysis',
+                    'variable': 'divergence',
+                    'pressure_level': '1',
+                    'year': '2020',
+                    'month': '06',
+                    'area': [
+                        90, -180, -90,
+                        180,
+                    ],
+                    'time': '00:00',
+                }"""),
+            filepath)
 
-    @testset "Data" begin
-        @test isfile("data/era5.grib")
+        @test typeof(response) <: Dict
+        @test response["content_type"] == "application/x-grib"
+        @test isfile(filepath)
+
+        GribFile(filepath) do datafile
+            data = Message(datafile)
+            @test data["name"] == "Divergence"
+            @test data["level"] == 1
+            @test data["year"] == 2020
+            @test data["month"] == 6
+        end
         rm(filepath)
     end
 end
