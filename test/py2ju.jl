@@ -1,16 +1,25 @@
 @testset "Py2Ju" begin
     pydict_str = """{
-               'format': 'tgz',
-               'variable': 'surface_air_relative_humidity',
-               'product_type': 'climatology',
-               'month': "09",
-               'origin': 'era_interim',
-           }"""
-    julia_dict = Dict("format" => "tgz",
-            "variable" => "surface_air_relative_humidity",
-            "product_type" => "climatology",
-            "month" => "09",
-            "origin" => "era_interim")
+                'format': 'grib',
+                'product_type': 'monthly_averaged_reanalysis',
+                'variable': 'divergence',
+                'pressure_level': '1',
+                'year': '2020',
+                'month': '06',
+                'area': [
+                    90, -180, -90,
+                    180,
+                ],
+                'time': '00:00',
+            }"""
+    julia_dict = Dict("format"=> "grib",
+                    "month" => "06",
+                    "time" => "00:00",
+                    "year" => "2020",
+                    "pressure_level" => "1",
+                    "area" => Any[90, -180, -90, 180],
+                    "product_type" => "monthly_averaged_reanalysis",
+                    "variable" => "divergence")
     py2ju_result = py2ju(pydict_str)
 
     @test typeof(py2ju_result) <: Dict
