@@ -51,11 +51,11 @@ Takes a Python dictionary as string and converts it into Julia's `Dict`
 # Examples
 ```julia-repl
 julia> str = \"""{
-               "format": "zip",
-               "variable": "surface_air_temperature",
-               "product_type": "climatology",
-               "month": "08",
-               "origin": "era_interim"
+               'format': 'zip',
+               'variable': 'surface_air_temperature',
+               'product_type': 'climatology',
+               'month': '08',
+               'origin': 'era_interim',
            }\""";
 
 julia> py2ju(str)
@@ -77,6 +77,11 @@ function py2ju(dictstr)
         # remove the comma
         dictstr_cpy = dictstr_cpy[begin:lastcomma_pos - 1] * dictstr_cpy[lastcomma_pos + 1:end]
     end
+
+    # removes trailing comma from a list
+    rx = r",[ \n\r\t]*\]"
+    dictstr_cpy = replace(dictstr_cpy, rx => "]")
+
     return JSON.parse(dictstr_cpy)
 end
 
