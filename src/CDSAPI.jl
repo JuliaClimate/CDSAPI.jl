@@ -39,7 +39,7 @@ function retrieve(name, params, filename)
         println("request queue status ", data["state"])
     end
 
-    download(data["location"], filename)
+    HTTP.download(data["location"], filename)
     return data
 end
 
