@@ -1,5 +1,7 @@
 using GRIB
 using ZipFile
+using GZip
+using Tar
 using NetCDF
 
 @testset "Retrieve" begin
@@ -70,5 +72,37 @@ using NetCDF
         # cleanup
         rm(filepath)
         rm(ewq_file)
+    end
+
+    @testset "European energy sector cimate" begin
+        filepath = joinpath(datadir, "ees.tar.gz")
+        response = CDSAPI.retrieve("sis-european-energy-sector",
+            py2ju("""{
+                'variable': 'precipitation',
+                'time_aggregation': '1_year_average',
+                'vertical_level': '0_m',
+                'bias_correction': 'bias_adjustment_based_on_gamma_distribution',
+                'format': 'tgz',
+            }"""),
+            filepath)
+
+        @test typeof(response) <: Dict
+        @test response["content_type"] == "application/gzip"
+        @test isfile(filepath)
+
+        # extract contents
+        gzip_io = GZip.open(filepath)
+        eesfile_dir = Tar.extract(gzip_io, joinpath(datadir, "ees"))
+        ees_file = joinpath(eesfile_dir, readdir(eesfile_dir)[1])
+        close(gzip_io)
+
+        # test file contents
+        @test ncgetatt(ees_file, "Global", "frequency") == "year"
+        @test ncgetatt(ees_file, "tp", "long_name") == "precip total"
+
+        # cleanup
+        rm(filepath)
+        rm(ees_file)
+        rm(eesfile_dir)
     end
 end
