@@ -1,5 +1,7 @@
 # CDSAPI.jl
 
+[![][travis-img]][travis-url] [![][codecov-img]][codecov-url]
+
 This package provides access to the [Climate Data Store](https://cds.climate.copernicus.eu) (a.k.a. CDS) service.
 
 The CDS website provides a [Show API request](https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels-monthly-means?tab=form) button at the bottom of the download tab of each dataset. This button generates the code to download the dataset with the Python cdsapi module. We've designed this Julia package so that one could copy/paste the generated Python code with minimum modification in Julia.
@@ -54,3 +56,9 @@ We've copied/pasted the code and called the `py2ju` function (exported by CDSAPI
 ## Contributors
 
 @michiboo @juliohm @LakshyaKhatri
+
+[travis-img]: https://travis-ci.org/JuliaClimate/CDSAPI.jl.svg?branch=master
+[travis-url]: https://travis-ci.org/JuliaClimate/CDSAPI.jl
+
+[codecov-img]: https://codecov.io/gh/JuliaClimate/CDSAPI.jl/branch/master/graph/badge.svg
+[codecov-url]: https://codecov.io/gh/JuliaClimate/CDSAPI.jl
