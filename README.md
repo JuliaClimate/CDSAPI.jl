@@ -40,7 +40,7 @@ You can obtain the same results in Julia with the following code:
 using CDSAPI
 
 CDSAPI.retrieve("insitu-glaciers-elevation-mass",
-py2ju("""
+CDSAPI.py2ju("""
 {
 "variable": "all",
 "product_type": "elevation_change",
@@ -52,6 +52,17 @@ py2ju("""
 ```
 
 We've copied/pasted the code and called the `py2ju` function (exported by CDSAPI.jl) on the second argument of the `retrieve` function. The `py2ju` function simply converts the string containing a Python dictionary to an actual Julia dictionary.
+
+Beside the downloaded file, retrieve function also return a dict with the following entires:
+```
+Dict{String,Any} with 6 entries:
+  "result_provided_by" => "8a3eb001-c8e3-4a9c-8170-28191ebea14b"
+  "location"           => "http://136.156.133.36/cache-compute-0010/cache/data0/dataset-insitu-glaciers-elevation-mass-8a3eb001a14b.tar.gz"
+  "content_type"       => "application/gzip"
+  "request_id"         => "04534ef1-874d-4c81-bb59-9b5effe63e9e"
+  "content_length"     => 193660
+  "state"              => "completed"
+```
 
 ## Contributors
 
