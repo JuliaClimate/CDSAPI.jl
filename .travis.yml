@@ -20,4 +20,4 @@ after_success:
   - julia -e 'using Coverage; Codecov.submit(process_folder())'
 before_install:
 - openssl aes-256-cbc -K $encrypted_fbf94d2678c4_key -iv $encrypted_fbf94d2678c4_iv
-  -in .cdsapirc.enc -out ~\/.cdsapirc -d
+  -in .cdsapirc.enc -out $HOME\/.cdsapirc -d
