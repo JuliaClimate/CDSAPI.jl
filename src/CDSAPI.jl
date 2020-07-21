@@ -75,7 +75,7 @@ function py2ju(dictstr)
     # if there's no pair after the last comma
     if findnext(":", dictstr_cpy, lastcomma_pos) == nothing
         # remove the comma
-        dictstr_cpy = dictstr_cpy[begin:lastcomma_pos - 1] * dictstr_cpy[lastcomma_pos + 1:end]
+        dictstr_cpy = dictstr_cpy[firstindex(dictstr_cpy):(lastcomma_pos - 1)] * dictstr_cpy[(lastcomma_pos + 1):lastindex(dictstr_cpy)]
     end
 
     # removes trailing comma from a list
