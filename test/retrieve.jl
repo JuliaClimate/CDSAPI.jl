@@ -1,9 +1,3 @@
-using GRIB
-using ZipFile
-using GZip
-using Tar
-using NetCDF
-
 @testset "Retrieve" begin
     datadir = joinpath(@__DIR__,"data")
 
