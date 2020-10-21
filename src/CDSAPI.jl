@@ -24,9 +24,9 @@ export
 Retrieves datasets from the Climate Data Store, with options specified in a Julia Dictionary and saves it into a specified file.
 
 Arguments:
-    * `fname::AbstractString` : string that contains the path and name of the file that the data is to be saved into
     * `dataset::AbstractString` : string specifies the name of the dataset within the Climate Data Store that the `retrieve` function is attempting to retrieve data from
     * `params::AbstractDict` : dictionary that contains the keywords that specify the properties (e.g. date, resolution, grid) of the data being retrieved
+    * `fname::AbstractString` : string that contains the path and name of the file that the data is to be saved into
     * `keys::AbstractDict` : dictionary that contains API Key information read from the .cdsapirc file in the home directory (optional)
 """
 function retrieve(
