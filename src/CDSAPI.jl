@@ -1,9 +1,14 @@
 module CDSAPI
 
+## Base Modules Used
 using Base64
+using Dates
+using Logging
+using Printf
+
+## Modules Used
 using HTTP
 using JSON
-using Logging
 
 export
         retrieve, cdskeys
