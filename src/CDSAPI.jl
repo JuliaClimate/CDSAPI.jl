@@ -67,18 +67,26 @@ function retrieve(
         data = JSON.parse(String(data.body))
     end
 
-    @info "$(now()) - Request is completed"
+    if data["state"] == "completed"
 
-    @info """$(now()) - Downloading $(uppercase(dataset)) data
-      $(BOLD("URL:"))         $(data["location"])
-      $(BOLD("Destination:")) $(fnc)
-    """
+        @info "$(now()) - Request is completed"
 
-    dt1 = now()
-    HTTP.download(data["location"],fname,update_period=Inf)
-    dt2 = now()
+        @info """$(now()) - Downloading $(uppercase(dataset)) data
+          $(BOLD("URL:"))         $(data["location"])
+          $(BOLD("Destination:")) $(fnc)
+        """
 
-    @info "$(now()) - Downloaded $(@sprintf("%.1f",data["content_length"]/1e6)) MB in $(@sprintf("%.1f",Dates.value(dt2-dt1)/1000)) seconds (Rate: $(@sprintf("%.1f",data["content_length"]/1e3/Dates.value(dt2-dt1))) MB/s)"
+        dt1 = now()
+        HTTP.download(data["location"],fname,update_period=Inf)
+        dt2 = now()
+
+        @info "$(now()) - Downloaded $(@sprintf("%.1f",data["content_length"]/1e6)) MB in $(@sprintf("%.1f",Dates.value(dt2-dt1)/1000)) seconds (Rate: $(@sprintf("%.1f",data["content_length"]/1e3/Dates.value(dt2-dt1))) MB/s)"
+
+    elseif data["state"] == "failed"
+
+        @error "$(now()) - Request failed"
+
+    end
 
     return
 
