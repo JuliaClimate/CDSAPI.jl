@@ -1,18 +1,28 @@
 module CDSAPI
 
+using Base64
 using HTTP
 using JSON
-using Base64
+using Logging
 
 export
         retrieve, cdskeys
 
 """
-    retrieve(name, params, filename)
+    retrieve(
+        fname::AbstractString,
+        cdsdataset::AbstractString,
+        cdsparams::AbstractDict,
+        cdskeys::AbstractDict = cdskeys()
+    )
 
-Retrieves data for `name` from the Climate Data Store
-with the specified `params` and stores it in the current
-directory as `filename`.
+Retrieves datasets from the Climate Data Store, with options specified in a Julia Dictionary and saves it into a specified file.
+
+Arguments:
+    * `fname::AbstractString` : string that contains the path and name of the file that the data is to be saved into
+    * `cdsdataset::AbstractString` : string specifies the name of the dataset within the Climate Data Store that the `retrieve` function is attempting to retrieve data from
+    * `cdsparams::AbstractDict` : dictionary that contains the keywords that specify the properties (e.g. date, resolution, grid) of the data being retrieved
+    * `cdskeys::AbstractDict` : dictionary that contains API Key information read from the .cdsapirc file in the home directory (optional)
 """
 function retrieve(
     fname::AbstractString,
@@ -70,29 +80,9 @@ function retrieve(
 end
 
 """
-    py2ju(dictstr)
+    cdskeys() -> Dict{Any,Any}
 
-Takes a Python dictionary as string and converts it into Julia's `Dict`
-
-# Examples
-```julia-repl
-julia> str = \"""{
-               'format': 'zip',
-               'variable': 'surface_air_temperature',
-               'product_type': 'climatology',
-               'month': '08',
-               'origin': 'era_interim',
-           }\""";
-
-julia> py2ju(str)
-Dict{String,Any} with 5 entries:
-  "format"       => "zip"
-  "month"        => "08"
-  "product_type" => "climatology"
-  "variable"     => "surface_air_temperature"
-  "origin"       => "era_interim"
-
-```
+Retrieves the CDS API Keys from the .cdsapirc file in the home directory
 """
 function cdskeys()
 
