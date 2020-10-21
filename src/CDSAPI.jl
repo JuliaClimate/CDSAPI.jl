@@ -5,7 +5,7 @@ using JSON
 using Base64
 
 export
-    py2ju
+        retrieve, cdskeys
 
 """
     retrieve(name, params, filename)
@@ -14,33 +14,59 @@ Retrieves data for `name` from the Climate Data Store
 with the specified `params` and stores it in the current
 directory as `filename`.
 """
-function retrieve(name, params, filename)
-    creds = Dict()
-    open(joinpath(homedir(),".cdsapirc")) do f
-        for line in readlines(f)
-            key, val = strip.(split(line,':', limit=2))
-            creds[key] = val
-        end
-    end
+function retrieve(
+    fname::AbstractString,
+    cdsdataset::AbstractString,
+    cdsparams::AbstractDict,
+    cdskeys::AbstractDict = cdskeys()
+)
 
-    apikey = string("Basic ", base64encode(creds["key"]))
+    @info "$(now()) - Welcome to the Climate Data Store"
+    apikey = string("Basic ", base64encode(cdskeys["key"]))
+
+    @info "$(now()) - Sending request to https://cds.climate.copernicus.eu/api/v2/resources/$(cdsdataset) ..."
     response = HTTP.request(
-        "POST",
-        creds["url"] * "/resources/$name",
+        "POST", cdskeys["url"] * "/resources/$(cdsdataset)",
         ["Authorization" => apikey],
-        body=JSON.json(params),
-        verbose=1)
-
+        body=JSON.json(cdsparams),
+        verbose=0
+    )
     resp_dict = JSON.parse(String(response.body))
     data = Dict("state" => "queued")
-    while data["state"] != "completed"
-        data = HTTP.request("GET", creds["url"] * "/tasks/" * string(resp_dict["request_id"]),  ["Authorization" => apikey])
+
+    @info "$(now()) - Request is queued"
+    while data["state"] == "queued"
+        data = HTTP.request(
+            "GET", cdskeys["url"] * "/tasks/" * string(resp_dict["request_id"]),
+            ["Authorization" => apikey]
+        )
         data = JSON.parse(String(data.body))
-        println("request queue status ", data["state"])
     end
 
-    HTTP.download(data["location"], filename)
-    return data
+    @info "$(now()) - Request is running"
+    while data["state"] == "running"
+        data = HTTP.request(
+            "GET", cdskeys["url"] * "/tasks/" * string(resp_dict["request_id"]),
+            ["Authorization" => apikey]
+        )
+        data = JSON.parse(String(data.body))
+    end
+
+    @info "$(now()) - Request is completed"
+
+    @info """$(now()) - Downloading $(uppercase(cdsdataset)) data
+      $(BOLD("URL:"))         $(data["location"])
+      $(BOLD("Destination:")) $(fnc)
+    """
+
+    dt1 = now()
+    HTTP.download(data["location"],fname,update_period=Inf)
+    dt2 = now()
+
+    @info "$(now()) - Downloaded $(@sprintf("%.1f",data["content_length"]/1e6)) MB in $(@sprintf("%.1f",Dates.value(dt2-dt1)/1000)) seconds (Rate: $(@sprintf("%.1f",data["content_length"]/1e3/Dates.value(dt2-dt1))) MB/s)"
+
+    return
+
 end
 
 """
@@ -68,21 +94,20 @@ Dict{String,Any} with 5 entries:
 
 ```
 """
-function py2ju(dictstr)
-    dictstr_cpy = replace(dictstr, "'" => "\"")
-    lastcomma_pos = findlast(",", dictstr_cpy).start
+function cdskeys()
 
-    # if there's no pair after the last comma
-    if findnext(":", dictstr_cpy, lastcomma_pos) == nothing
-        # remove the comma
-        dictstr_cpy = dictstr_cpy[firstindex(dictstr_cpy):(lastcomma_pos - 1)] * dictstr_cpy[(lastcomma_pos + 1):lastindex(dictstr_cpy)]
+    cdskeys = Dict(); cdsapirc = joinpath(homedir(),".cdsapirc")
+
+    @info "$(now()) - Loading CDSAPI credentials from $(cdsapirc) ..."
+    open(cdsapirc) do f
+        for line in readlines(f)
+            key,val = strip.(split(line,':',limit=2))
+            cdskeys[key] = val
+        end
     end
 
-    # removes trailing comma from a list
-    rx = r",[ \n\r\t]*\]"
-    dictstr_cpy = replace(dictstr_cpy, rx => "]")
+    return cdskeys
 
-    return JSON.parse(dictstr_cpy)
 end
 
 end # module
