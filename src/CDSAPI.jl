@@ -7,6 +7,7 @@ using Logging
 using Printf
 
 ## Modules Used
+using Crayons.Box
 using HTTP
 using JSON
 
@@ -33,13 +34,21 @@ function retrieve(
     dataset::AbstractString,
     params::AbstractDict,
     fname::AbstractString,
-    keys::AbstractDict = cdskeys()
+    keys::AbstractDict = cdskeys();
+    verbose::Bool=true
 )
 
-    @info "$(now()) - Welcome to the Climate Data Store"
+    if verbose
+        @info "$(now()) - Welcome to the Climate Data Store"
+    else
+        @info """$(now()) - Requesting $(uppercase(dataset)) data from the Climate Data Store ...
+        """
+    end
     apikey = string("Basic ", base64encode(keys["key"]))
 
-    @info "$(now()) - Sending request to https://cds.climate.copernicus.eu/api/v2/resources/$(dataset) ..."
+    if verbose
+        @info "$(now()) - Sending request to https://cds.climate.copernicus.eu/api/v2/resources/$(dataset) ..."
+    end
     response = HTTP.request(
         "POST", keys["url"] * "/resources/$(dataset)",
         ["Authorization" => apikey],
@@ -49,7 +58,7 @@ function retrieve(
     resp_dict = JSON.parse(String(response.body))
     data = Dict("state" => "queued")
 
-    @info "$(now()) - Request is queued"
+    if verbose; @info "$(now()) - Request is queued" end
     while data["state"] == "queued"
         data = HTTP.request(
             "GET", keys["url"] * "/tasks/" * string(resp_dict["request_id"]),
@@ -58,7 +67,7 @@ function retrieve(
         data = JSON.parse(String(data.body))
     end
 
-    @info "$(now()) - Request is running"
+    if verbose; @info "$(now()) - Request is running" end
     while data["state"] == "running"
         data = HTTP.request(
             "GET", keys["url"] * "/tasks/" * string(resp_dict["request_id"]),
@@ -69,9 +78,9 @@ function retrieve(
 
     if data["state"] == "completed"
 
-        @info "$(now()) - Request is completed"
+        if verbose; @info "$(now()) - Request is completed" end
 
-        @info """$(now()) - Downloading $(uppercase(dataset)) data
+        @info """$(now()) - Downloading $(uppercase(dataset)) data ...
           $(BOLD("URL:"))         $(data["location"])
           $(BOLD("Destination:")) $(fnc)
         """
@@ -80,7 +89,9 @@ function retrieve(
         HTTP.download(data["location"],fname,update_period=Inf)
         dt2 = now()
 
-        @info "$(now()) - Downloaded $(@sprintf("%.1f",data["content_length"]/1e6)) MB in $(@sprintf("%.1f",Dates.value(dt2-dt1)/1000)) seconds (Rate: $(@sprintf("%.1f",data["content_length"]/1e3/Dates.value(dt2-dt1))) MB/s)"
+        if verbose
+            @info "$(now()) - Downloaded $(@sprintf("%.1f",data["content_length"]/1e6)) MB in $(@sprintf("%.1f",Dates.value(dt2-dt1)/1000)) seconds (Rate: $(@sprintf("%.1f",data["content_length"]/1e3/Dates.value(dt2-dt1))) MB/s)"
+        end
 
     elseif data["state"] == "failed"
 
