@@ -7,7 +7,6 @@ using Logging
 using Printf
 
 ## Modules Used
-using Crayons.Box
 using HTTP
 using JSON
 
@@ -81,8 +80,8 @@ function retrieve(
         if verbose; @info "$(now()) - Request is completed" end
 
         @info """$(now()) - Downloading $(uppercase(dataset)) data ...
-          $(BOLD("URL:"))         $(data["location"])
-          $(BOLD("Destination:")) $(fnc)
+          URL:         $(data["location"])
+          Destination: $(fnc)
         """
 
         dt1 = now()
