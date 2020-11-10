@@ -10,8 +10,7 @@ using Printf
 using HTTP
 using JSON
 
-export
-        retrieve, cdskeys
+export retrieve, cdskeys
 
 """
     retrieve(
