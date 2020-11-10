@@ -38,3 +38,34 @@ The CDS website provides a [Show API request](https://cds.climate.copernicus.eu/
 
 ## Requirements
 You must have a CDS account and have ensured that your `~/.cdsapirc` file exists. Instructions on how to create the file for your user account can be found [here](https://cds.climate.copernicus.eu/api-how-to).
+
+## Usage
+
+The main functionality of `CDSAPI.jl` is based on the `retrieve()` function.  `retrieve()` has three main keywords (in the following order)
+```
+retrieve(
+    dataset -> specifies the particular CDS dataset you are retrieving
+    params  -> a Julia Dictionary containing keywords with information on details such as
+               date, time, variable, pressure level, etc.
+    fname   -> name of the file you are downloading into
+)
+```
+
+For example, if I wanted to retrieve information on ERA5's Land Sea Mask on 2011 Jan 01 for the entire globe, I would do the following:
+```
+pfnc = "plot-GLBx0.25-lsm.nc"
+plsm = Dict(
+    "product_type" => "reanalysis",
+    "variable"     => "land_sea_mask",
+    "year"         => 2011,
+    "month"        => 1,
+    "day"          => 1,
+    "time"         => "00:00",
+    "format"       => "netcdf"
+)
+retrieve("reanalysis-era5-single-levels",plsm,pfnc)
+```
+
+This would therefore retrieve the Land Sea Mask in ERA5 at this point in time and save it into the NetCDF file `plot-GLBx0.25-lsm.nc`.  Unless a path is specified in front the file name, Julia will create the file `plot-GLBx0.25-lsm.nc` in the current directory.
+
+You can also look at the `test` folder to see more examples.
