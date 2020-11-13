@@ -58,20 +58,12 @@ function retrieve(
 
     if verbose; @info "$(now()) - Request is queued" end
     while data["state"] == "queued"
-        data = HTTP.request(
-            "GET", keys["url"] * "/tasks/" * string(resp_dict["request_id"]),
-            ["Authorization" => apikey]
-        )
-        data = JSON.parse(String(data.body))
+        parserequest!(data)
     end
 
     if verbose; @info "$(now()) - Request is running" end
     while data["state"] == "running"
-        data = HTTP.request(
-            "GET", keys["url"] * "/tasks/" * string(resp_dict["request_id"]),
-            ["Authorization" => apikey]
-        )
-        data = JSON.parse(String(data.body))
+        parserequest!(data)
     end
 
     if data["state"] == "completed"
@@ -119,6 +111,23 @@ function cdskeys()
     end
 
     return keys
+
+end
+
+"""
+    parserequest(data::AbstractDict) -> Dict{Any,Any}
+
+Get info on HTTP request, and parse the information and update the dictionary
+"""
+function parserequest!(data::AbstractDict)
+
+    data = HTTP.request(
+        "GET", keys["url"] * "/tasks/" * string(resp_dict["request_id"]),
+        ["Authorization" => apikey]
+    )
+    data = JSON.parse(String(data.body))
+
+    return
 
 end
 
