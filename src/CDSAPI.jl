@@ -43,6 +43,12 @@ function retrieve(name, params, filename; max_sleep = 120.)
         data = JSON.parse(String(data.body))
         println("request queue status ", data["state"])
 
+        if data["state"] == "failed"
+            error("Request to dataset $name failed. Check " *
+                  "https://cds.climate.copernicus.eu/cdsapp#!/yourrequests " *
+                  "for more information (after login).")
+        end
+
         sleep_seconds = min(1.5 * sleep_seconds,max_sleep)
         if data["state"] != "completed"
             sleep(sleep_seconds)
