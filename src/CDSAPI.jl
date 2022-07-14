@@ -4,9 +4,6 @@ using HTTP
 using JSON
 using Base64
 
-export
-    py2ju
-
 """
     retrieve(name, params, filename; max_sleep = 120.)
 
@@ -74,7 +71,7 @@ julia> str = \"""{
                'origin': 'era_interim',
            }\""";
 
-julia> py2ju(str)
+julia> CDSAPI.py2ju(str)
 Dict{String,Any} with 5 entries:
   "format"       => "zip"
   "month"        => "08"

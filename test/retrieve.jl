@@ -4,7 +4,7 @@
     @testset "ERA5 monthly preasure data" begin
         filepath = joinpath(datadir, "era5.grib")
         response = CDSAPI.retrieve("reanalysis-era5-pressure-levels-monthly-means",
-            py2ju("""{
+            CDSAPI.py2ju("""{
                 'format': 'grib',
                 'product_type': 'monthly_averaged_reanalysis',
                 'variable': 'divergence',
@@ -36,7 +36,7 @@
     @testset "Europe water quantity data" begin
         filepath = joinpath(datadir, "ewq.zip")
         response = CDSAPI.retrieve("sis-water-quantity-swicca",
-            py2ju("""{
+            CDSAPI.py2ju("""{
                 'variable': 'river_flow',
                 'time_aggregation': 'annual_maximum',
                 'horizontal_aggregation': 'catchments',
@@ -71,7 +71,7 @@
     @testset "European energy sector cimate" begin
         filepath = joinpath(datadir, "ees.tar.gz")
         response = CDSAPI.retrieve("sis-european-energy-sector",
-            py2ju("""{
+            CDSAPI.py2ju("""{
                 'variable': 'precipitation',
                 'time_aggregation': '1_year_average',
                 'vertical_level': '0_m',
