@@ -20,7 +20,7 @@
                     "area" => Any[90, -180, -90, 180],
                     "product_type" => "monthly_averaged_reanalysis",
                     "variable" => "divergence")
-    py2ju_result = py2ju(pydict_str)
+    py2ju_result = CDSAPI.py2ju(pydict_str)
 
     @test typeof(py2ju_result) <: Dict
     @test py2ju_result == julia_dict
