@@ -4,7 +4,9 @@
 
 This package provides access to the [Climate Data Store](https://cds.climate.copernicus.eu) (a.k.a. CDS) service.
 
-The CDS website provides a [Show API request](https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels-monthly-means?tab=form) button at the bottom of the download tab of each dataset. This button generates the code to download the dataset with the Python cdsapi module. We've designed this Julia package so that one could copy/paste the generated Python code with minimum modification in Julia.
+The CDS website provides a [Show API request](https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels-monthly-means?tab=form)
+button at the bottom of the download tab of each dataset. This button generates the code to download the dataset with the Python cdsapi module.
+We've designed this Julia package so that one could copy/paste the generated Python code with minimum modification in Julia.
 
 ## Installation
 
@@ -16,7 +18,8 @@ Please install the package with Julia's package manager:
 
 ## Usage
 
-Make sure your `~/.cdsapirc` file exists. Instructions on how to create the file for your user account can be found [here](https://cds.climate.copernicus.eu/api-how-to).
+Make sure your `~/.cdsapirc` file exists. Instructions on how to create the file for your user account can be found
+[here](https://cds.climate.copernicus.eu/api-how-to).
 
 Suppose that the `Show API request` button generated the following Python code:
 
@@ -51,7 +54,8 @@ CDSAPI.py2ju("""
 "download.tar.gz")
 ```
 
-We've copied/pasted the code and called the `py2ju` function (exported by CDSAPI.jl) on the second argument of the `retrieve` function. The `py2ju` function simply converts the string containing a Python dictionary to an actual Julia dictionary.
+We've copied/pasted the code and called the `py2ju` function on the second argument of the `retrieve` function.
+The `py2ju` function simply converts the string containing a Python dictionary to an actual Julia dictionary.
 
 Beside the downloaded file, retrieve function also return a dict with the following entires:
 ```
