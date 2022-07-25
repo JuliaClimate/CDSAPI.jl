@@ -1,6 +1,6 @@
 # CDSAPI.jl
 
-[![][travis-img]][travis-url] [![][codecov-img]][codecov-url]
+[![][build-img]][build-url] [![][codecov-img]][codecov-url]
 
 This package provides access to the [Climate Data Store](https://cds.climate.copernicus.eu) (a.k.a. CDS) service.
 
@@ -72,8 +72,8 @@ Dict{String,Any} with 6 entries:
 
 @michiboo @juliohm @LakshyaKhatri
 
-[travis-img]: https://travis-ci.org/JuliaClimate/CDSAPI.jl.svg?branch=master
-[travis-url]: https://travis-ci.org/JuliaClimate/CDSAPI.jl
+[build-img]: https://img.shields.io/github/workflow/status/JuliaClimate/CDSAPI.jl/CI?style=flat-square
+[build-url]: https://github.com/JuliaClimate/CDSAPI.jl/actions
 
-[codecov-img]: https://codecov.io/gh/JuliaClimate/CDSAPI.jl/branch/master/graph/badge.svg
+[codecov-img]: https://img.shields.io/codecov/c/github/JuliaClimate/CDSAPI.jl?style=flat-square
 [codecov-url]: https://codecov.io/gh/JuliaClimate/CDSAPI.jl
