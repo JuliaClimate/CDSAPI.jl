@@ -57,7 +57,7 @@ CDSAPI.py2ju("""
 We've copied/pasted the code and called the `py2ju` function on the second argument of the `retrieve` function.
 The `py2ju` function simply converts the string containing a Python dictionary to an actual Julia dictionary.
 
-Beside the downloaded file, retrieve function also return a dict with the following entires:
+Besides the downloaded file, the `retrieve` function also returns a dictionary with the following entries:
 ```
 Dict{String,Any} with 6 entries:
   "result_provided_by" => "8a3eb001-c8e3-4a9c-8170-28191ebea14b"
