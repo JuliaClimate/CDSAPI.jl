@@ -68,7 +68,7 @@ Dict{String,Any} with 6 entries:
   "state"              => "completed"
 ```
 
-[build-img]: https://img.shields.io/github/workflow/status/JuliaClimate/CDSAPI.jl/CI?style=flat-square
+[build-img]: https://img.shields.io/github/actions/workflow/status/JuliaClimate/CDSAPI.jl/CI.yml?branch=master&style=flat-square
 [build-url]: https://github.com/JuliaClimate/CDSAPI.jl/actions
 
 [codecov-img]: https://img.shields.io/codecov/c/github/JuliaClimate/CDSAPI.jl?style=flat-square
