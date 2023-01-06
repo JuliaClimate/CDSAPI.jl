@@ -59,7 +59,7 @@ end
 """
     py2ju(dictstr)
 
-Takes a Python dictionary as string and converts it into Julia's `Dict`
+Takes a Python dictionary as string and converts it into Julia's `Dict`.
 
 # Examples
 ```julia-repl
