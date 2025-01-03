@@ -1,11 +1,11 @@
 @testset "Retrieve" begin
-    datadir = joinpath(@__DIR__,"data")
+    datadir = joinpath(@__DIR__, "data")
 
     @testset "ERA5 monthly preasure data" begin
         filepath = joinpath(datadir, "era5.grib")
         response = CDSAPI.retrieve("reanalysis-era5-pressure-levels-monthly-means",
             CDSAPI.py2ju("""{
-                'format': 'grib',
+                'data_format': 'grib',
                 'product_type': 'monthly_averaged_reanalysis',
                 'variable': 'divergence',
                 'pressure_level': '1',
@@ -20,7 +20,6 @@
             filepath)
 
         @test typeof(response) <: Dict
-        @test response["content_type"] == "application/x-grib"
         @test isfile(filepath)
 
         GribFile(filepath) do datafile
@@ -43,12 +42,11 @@
                 'emissions_scenario': 'rcp_2_6',
                 'period': '2071_2100',
                 'return_period': '100',
-                'format': 'zip',
+                'data_format': 'zip',
             }"""),
             filepath)
 
         @test typeof(response) <: Dict
-        @test response["content_type"] == "application/zip"
         @test isfile(filepath)
 
         # extract contents
@@ -76,12 +74,11 @@
                 'time_aggregation': '1_year_average',
                 'vertical_level': '0_m',
                 'bias_correction': 'bias_adjustment_based_on_gamma_distribution',
-                'format': 'tgz',
+                'data_format': 'tgz',
             }"""),
             filepath)
 
         @test typeof(response) <: Dict
-        @test response["content_type"] == "application/gzip"
         @test isfile(filepath)
 
         # extract contents

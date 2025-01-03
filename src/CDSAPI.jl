@@ -2,7 +2,6 @@ module CDSAPI
 
 using HTTP
 using JSON
-using Base64
 
 """
     retrieve(name, params, filename; max_sleep = 120.)
@@ -14,45 +13,46 @@ directory as `filename`.
 The client periodically requests the status of the retrieve request.
 `max_sleep` is the maximum time (in seconds) between the status updates.
 """
-function retrieve(name, params, filename; max_sleep = 120.)
+function retrieve(name, params, filename; max_sleep=120.0)
     creds = Dict()
-    open(joinpath(homedir(),".cdsapirc")) do f
+    open(joinpath(homedir(), ".cdsapirc")) do f
         for line in readlines(f)
-            key, val = strip.(split(line,':', limit=2))
+            key, val = strip.(split(line, ':', limit=2))
             creds[key] = val
         end
     end
 
-    apikey = string("Basic ", base64encode(creds["key"]))
     response = HTTP.request(
         "POST",
-        creds["url"] * "/resources/$name",
-        ["Authorization" => apikey],
-        body=JSON.json(params),
+        creds["url"] * "/retrieve/v1/processes/$name/execute/",
+        ["PRIVATE-TOKEN" => creds["key"]],
+        body=JSON.json(Dict("inputs" => params)),
         verbose=1)
 
     resp_dict = JSON.parse(String(response.body))
-    data = Dict("state" => "queued")
-    sleep_seconds = 1.
+    data = Dict("status" => "queued")
+    sleep_seconds = 1.0
 
-    while data["state"] != "completed"
-        data = HTTP.request("GET", creds["url"] * "/tasks/" * string(resp_dict["request_id"]),  ["Authorization" => apikey])
+    while data["status"] != "successful"
+        data = HTTP.request("GET", creds["url"] * "/retrieve/v1/jobs/" * string(resp_dict["jobID"]), ["PRIVATE-TOKEN" => creds["key"]])
         data = JSON.parse(String(data.body))
-        println("request queue status ", data["state"])
+        println("request queue status ", data["status"])
 
-        if data["state"] == "failed"
+        if data["status"] == "failed"
             error("Request to dataset $name failed. Check " *
                   "https://cds.climate.copernicus.eu/cdsapp#!/yourrequests " *
                   "for more information (after login).")
         end
 
-        sleep_seconds = min(1.5 * sleep_seconds,max_sleep)
-        if data["state"] != "completed"
+        sleep_seconds = min(1.5 * sleep_seconds, max_sleep)
+        if data["status"] != "successful"
             sleep(sleep_seconds)
         end
     end
 
-    HTTP.download(data["location"], filename)
+    response = HTTP.request("GET", creds["url"] * "/retrieve/v1/jobs/" * string(resp_dict["jobID"]) * "/results/", ["PRIVATE-TOKEN" => creds["key"]])
+    body = JSON.parse(String(response.body))
+    HTTP.download(body["asset"]["value"]["href"], filename)
     return data
 end
 
@@ -88,7 +88,7 @@ function py2ju(dictstr)
     # if there's no pair after the last comma
     if findnext(":", dictstr_cpy, lastcomma_pos) == nothing
         # remove the comma
-        dictstr_cpy = dictstr_cpy[firstindex(dictstr_cpy):(lastcomma_pos - 1)] * dictstr_cpy[(lastcomma_pos + 1):lastindex(dictstr_cpy)]
+        dictstr_cpy = dictstr_cpy[firstindex(dictstr_cpy):(lastcomma_pos-1)] * dictstr_cpy[(lastcomma_pos+1):lastindex(dictstr_cpy)]
     end
 
     # removes trailing comma from a list
