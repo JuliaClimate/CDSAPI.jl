@@ -19,7 +19,7 @@ Please install the package with Julia's package manager:
 ## Usage
 
 Make sure your `~/.cdsapirc` file exists. Instructions on how to create the file for your user account can be found
-[here](https://cds.climate.copernicus.eu/api-how-to).
+[here](https://cds.climate.copernicus.eu/how-to-api).
 
 Suppose that the `Show API request` button generated the following Python code:
 
