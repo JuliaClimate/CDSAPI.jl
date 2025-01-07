@@ -4,16 +4,16 @@ using HTTP
 using JSON
 
 """
-    retrieve(name, params, filename; max_sleep = 120.)
+    retrieve(name, params, filename; wait=1.0)
 
 Retrieves data for `name` from the Climate Data Store
 with the specified `params` and stores it in the current
 directory as `filename`.
 
 The client periodically requests the status of the retrieve request.
-`max_sleep` is the maximum time (in seconds) between the status updates.
+`wait` is the maximum time (in seconds) between status updates.
 """
-function retrieve(name, params, filename; max_sleep=120.0)
+function retrieve(name, params, filename; wait=1.0)
     creds = Dict()
     open(joinpath(homedir(), ".cdsapirc")) do f
         for line in readlines(f)
@@ -28,31 +28,36 @@ function retrieve(name, params, filename; max_sleep=120.0)
         ["PRIVATE-TOKEN" => creds["key"]],
         body=JSON.json(Dict("inputs" => params)),
         verbose=1)
-
-    resp_dict = JSON.parse(String(response.body))
+    body = JSON.parse(String(response.body))
     data = Dict("status" => "queued")
-    sleep_seconds = 1.0
 
     while data["status"] != "successful"
-        data = HTTP.request("GET", creds["url"] * "/retrieve/v1/jobs/" * string(resp_dict["jobID"]), ["PRIVATE-TOKEN" => creds["key"]])
+        data = HTTP.request("GET", creds["url"] * "/retrieve/v1/jobs/" * string(body["jobID"]), ["PRIVATE-TOKEN" => creds["key"]])
         data = JSON.parse(String(data.body))
-        println("request queue status ", data["status"])
+        @info "request status" data["status"]
 
         if data["status"] == "failed"
-            error("Request to dataset $name failed. Check " *
-                  "https://cds.climate.copernicus.eu/cdsapp#!/yourrequests " *
-                  "for more information (after login).")
+            throw(ErrorException("""
+            Request to dataset $name failed.
+            Check https://cds.climate.copernicus.eu/requests
+            for more information (after login).
+            """
+            ))
         end
 
-        sleep_seconds = min(1.5 * sleep_seconds, max_sleep)
         if data["status"] != "successful"
-            sleep(sleep_seconds)
+            sleep(wait)
         end
     end
 
-    response = HTTP.request("GET", creds["url"] * "/retrieve/v1/jobs/" * string(resp_dict["jobID"]) * "/results/", ["PRIVATE-TOKEN" => creds["key"]])
+    response = HTTP.request(
+        "GET",
+        creds["url"] * "/retrieve/v1/jobs/" * string(body["jobID"]) * "/results/",
+        ["PRIVATE-TOKEN" => creds["key"]]
+    )
     body = JSON.parse(String(response.body))
     HTTP.download(body["asset"]["value"]["href"], filename)
+
     return data
 end
 
