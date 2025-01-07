@@ -1,6 +1,6 @@
 @testset "Py2Ju" begin
     pydict_str = """{
-                'format': 'grib',
+                'data_format': 'grib',
                 'product_type': 'monthly_averaged_reanalysis',
                 'variable': 'divergence',
                 'pressure_level': '1',
@@ -12,14 +12,14 @@
                 ],
                 'time': '00:00',
             }"""
-    julia_dict = Dict("format"=> "grib",
-                    "month" => "06",
-                    "time" => "00:00",
-                    "year" => "2020",
-                    "pressure_level" => "1",
-                    "area" => Any[90, -180, -90, 180],
-                    "product_type" => "monthly_averaged_reanalysis",
-                    "variable" => "divergence")
+    julia_dict = Dict("data_format" => "grib",
+        "month" => "06",
+        "time" => "00:00",
+        "year" => "2020",
+        "pressure_level" => "1",
+        "area" => Any[90, -180, -90, 180],
+        "product_type" => "monthly_averaged_reanalysis",
+        "variable" => "divergence")
     py2ju_result = CDSAPI.py2ju(pydict_str)
 
     @test typeof(py2ju_result) <: Dict

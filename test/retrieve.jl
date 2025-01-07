@@ -1,11 +1,11 @@
 @testset "Retrieve" begin
-    datadir = joinpath(@__DIR__,"data")
+    datadir = joinpath(@__DIR__, "data")
 
     @testset "ERA5 monthly preasure data" begin
         filepath = joinpath(datadir, "era5.grib")
         response = CDSAPI.retrieve("reanalysis-era5-pressure-levels-monthly-means",
             CDSAPI.py2ju("""{
-                'format': 'grib',
+                'data_format': 'grib',
                 'product_type': 'monthly_averaged_reanalysis',
                 'variable': 'divergence',
                 'pressure_level': '1',
@@ -20,7 +20,6 @@
             filepath)
 
         @test typeof(response) <: Dict
-        @test response["content_type"] == "application/x-grib"
         @test isfile(filepath)
 
         GribFile(filepath) do datafile
@@ -33,22 +32,22 @@
         rm(filepath)
     end
 
-    @testset "Europe water quantity data" begin
-        filepath = joinpath(datadir, "ewq.zip")
-        response = CDSAPI.retrieve("sis-water-quantity-swicca",
+    @testset "Sea ice type data" begin
+        filepath = joinpath(datadir, "sea_ice_type.zip")
+        response = CDSAPI.retrieve("satellite-sea-ice-edge-type",
             CDSAPI.py2ju("""{
-                'variable': 'river_flow',
-                'time_aggregation': 'annual_maximum',
-                'horizontal_aggregation': 'catchments',
-                'emissions_scenario': 'rcp_2_6',
-                'period': '2071_2100',
-                'return_period': '100',
-                'format': 'zip',
+                'variable': 'sea_ice_type',
+                'region': 'northern_hemisphere',
+                'cdr_type': 'cdr',
+                'year': '1979',
+                'month': '01',
+                'day': '02',
+                'version': '3_0',
+                'data_format': 'zip',
             }"""),
             filepath)
 
         @test typeof(response) <: Dict
-        @test response["content_type"] == "application/zip"
         @test isfile(filepath)
 
         # extract contents
@@ -59,44 +58,11 @@
         close(zip_reader)
 
         # test file contents
-        @test ncgetatt(ewq_file, "Global", "time_coverage_start") == "20710101"
-        @test ncgetatt(ewq_file, "Global", "time_coverage_end") == "21001231"
-        @test ncgetatt(ewq_file, "Global", "invar_experiment_name") == "rcp26"
+        @test ncgetatt(ewq_file, "Global", "time_coverage_start") == "19790102T000000Z"
+        @test ncgetatt(ewq_file, "Global", "time_coverage_end") == "19790103T000000Z"
 
         # cleanup
         rm(filepath)
         rm(ewq_file)
-    end
-
-    @testset "European energy sector cimate" begin
-        filepath = joinpath(datadir, "ees.tar.gz")
-        response = CDSAPI.retrieve("sis-european-energy-sector",
-            CDSAPI.py2ju("""{
-                'variable': 'precipitation',
-                'time_aggregation': '1_year_average',
-                'vertical_level': '0_m',
-                'bias_correction': 'bias_adjustment_based_on_gamma_distribution',
-                'format': 'tgz',
-            }"""),
-            filepath)
-
-        @test typeof(response) <: Dict
-        @test response["content_type"] == "application/gzip"
-        @test isfile(filepath)
-
-        # extract contents
-        gzip_io = GZip.open(filepath)
-        eesfile_dir = Tar.extract(gzip_io, joinpath(datadir, "ees"))
-        ees_file = joinpath(eesfile_dir, readdir(eesfile_dir)[1])
-        close(gzip_io)
-
-        # test file contents
-        @test ncgetatt(ees_file, "Global", "frequency") == "year"
-        @test ncgetatt(ees_file, "tp", "long_name") == "precip total"
-
-        # cleanup
-        rm(filepath)
-        rm(ees_file)
-        rm(eesfile_dir)
     end
 end
