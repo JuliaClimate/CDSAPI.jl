@@ -31,4 +31,75 @@
         end
         rm(filepath)
     end
+
+    @testset "Sea ice type data" begin
+        filepath = joinpath(datadir, "sea_ice_type.zip")
+        response = CDSAPI.retrieve("satellite-sea-ice-edge-type",
+            CDSAPI.py2ju("""{
+                'variable': 'sea_ice_type',
+                'region': 'northern_hemisphere',
+                'cdr_type': 'cdr',
+                'year': '1979',
+                'month': '01',
+                'day': '02',
+                'version': '3_0',
+                'data_format': 'zip',
+            }"""),
+            filepath)
+
+        @test typeof(response) <: Dict
+        @test isfile(filepath)
+
+        # extract contents
+        zip_reader = ZipFile.Reader(filepath)
+        ewq_fileio = zip_reader.files[1]
+        ewq_file = joinpath(datadir, ewq_fileio.name)
+        write(ewq_file, read(ewq_fileio))
+        close(zip_reader)
+
+        # test file contents
+        @test ncgetatt(ewq_file, "Global", "time_coverage_start") == "19790102T000000Z"
+        @test ncgetatt(ewq_file, "Global", "time_coverage_end") == "19790103T000000Z"
+
+        # cleanup
+        rm(filepath)
+        rm(ewq_file)
+    end
+
+    @testset "Surface air relative humidity" begin
+        filepath = joinpath(datadir, "ecc.tar.gz")
+        response = CDSAPI.retrieve("ecv-for-climate-change",
+            CDSAPI.py2ju("""{
+                'variable': 'surface_air_relative_humidity',
+                'origin': 'era5',
+                'product_type': 'monthly_mean',
+                'time_aggregation': '1_month_mean',
+                'year': '2014',
+                'month': '01',
+                'data_format': 'tgz',
+            }"""),
+            filepath)
+
+        @test typeof(response) <: Dict
+        @test isfile(filepath)
+
+        # extract contents
+        ecc_dir = joinpath(datadir, "ecc")
+        mkdir(ecc_dir)
+        run(`tar -xzvf $filepath -C $ecc_dir`)
+        ecc_file = joinpath(ecc_dir, readdir(ecc_dir)[1])
+
+        # test file contents
+        GribFile(ecc_file) do f
+            data = Message(f)
+            @test data["date"] == 20140101
+            @test data["typeOfLevel"] == "surface"
+            @test data["name"] == "Relative humidity"
+        end
+
+        # cleanup
+        rm(filepath)
+        rm(ecc_file)
+        rm(ecc_dir)
+    end
 end
