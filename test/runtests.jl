@@ -1,5 +1,5 @@
 using CDSAPI
-using ZipFile, GZip, Tar
+using ZipFile
 using GRIB, NetCDF
 
 using Test

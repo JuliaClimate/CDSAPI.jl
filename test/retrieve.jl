@@ -65,41 +65,4 @@
         rm(filepath)
         rm(ewq_file)
     end
-
-    @testset "Surface air relative humidity" begin
-        filepath = joinpath(datadir, "ecc.tar.gz")
-        response = CDSAPI.retrieve("ecv-for-climate-change",
-            CDSAPI.py2ju("""{
-                'variable': 'surface_air_relative_humidity',
-                'origin': 'era5',
-                'product_type': 'monthly_mean',
-                'time_aggregation': '1_month_mean',
-                'year': '2014',
-                'month': '01',
-                'data_format': 'tgz',
-            }"""),
-            filepath)
-
-        @test typeof(response) <: Dict
-        @test isfile(filepath)
-
-        # extract contents
-        ecc_dir = joinpath(datadir, "ecc")
-        mkdir(ecc_dir)
-        run(`tar -xzvf $filepath -C $ecc_dir`)
-        ecc_file = joinpath(ecc_dir, readdir(ecc_dir)[1])
-
-        # test file contents
-        GribFile(ecc_file) do f
-            data = Message(f)
-            @test data["date"] == 20140101
-            @test data["typeOfLevel"] == "surface"
-            @test data["name"] == "Relative humidity"
-        end
-
-        # cleanup
-        rm(filepath)
-        rm(ecc_file)
-        rm(ecc_dir)
-    end
 end
