@@ -22,17 +22,19 @@ function retrieve(name, params, filename; wait=1.0)
         end
     end
 
-    response = HTTP.request(
-        "POST",
-        creds["url"] * "/retrieve/v1/processes/$name/execute/",
+    response = HTTP.request("POST",
+        creds["url"] * "/retrieve/v1/processes/$name/execute",
         ["PRIVATE-TOKEN" => creds["key"]],
-        body=JSON.json(Dict("inputs" => params)),
-        verbose=1)
+        body=JSON.json(Dict("inputs" => params))
+    )
     body = JSON.parse(String(response.body))
     data = Dict("status" => "queued")
 
     while data["status"] != "successful"
-        data = HTTP.request("GET", creds["url"] * "/retrieve/v1/jobs/" * string(body["jobID"]), ["PRIVATE-TOKEN" => creds["key"]])
+        data = HTTP.request("GET",
+            creds["url"] * "/retrieve/v1/jobs/" * string(body["jobID"]),
+            ["PRIVATE-TOKEN" => creds["key"]]
+        )
         data = JSON.parse(String(data.body))
         @info "request status" data["status"]
 
@@ -50,9 +52,8 @@ function retrieve(name, params, filename; wait=1.0)
         end
     end
 
-    response = HTTP.request(
-        "GET",
-        creds["url"] * "/retrieve/v1/jobs/" * string(body["jobID"]) * "/results/",
+    response = HTTP.request("GET",
+        creds["url"] * "/retrieve/v1/jobs/" * string(body["jobID"]) * "/results",
         ["PRIVATE-TOKEN" => creds["key"]]
     )
     body = JSON.parse(String(response.body))
