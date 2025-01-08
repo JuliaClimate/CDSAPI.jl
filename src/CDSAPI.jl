@@ -36,7 +36,7 @@ function retrieve(name, params, filename; wait=1.0)
             ["PRIVATE-TOKEN" => creds["key"]]
         )
         data = JSON.parse(String(data.body))
-        @info "request status" data["status"]
+        @info "CDS request" dataset=name status=data["status"]
 
         if data["status"] == "failed"
             throw(ErrorException("""
