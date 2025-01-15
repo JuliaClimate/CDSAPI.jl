@@ -13,7 +13,7 @@ Checks the default location for the cds credentials
 """
 function CDScredentials()
     url = get(ENV, "CDSAPI_URL", "")
-    token = get(ENV, "CDSAPI_KEY", "")
+    key = get(ENV, "CDSAPI_KEY", "")
 
     if any(isempty, (url, token))
         dotrc = joinpath(homedir(), ".cdsapirc")
