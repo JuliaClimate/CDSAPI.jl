@@ -2,7 +2,15 @@ module CDSAPI
 
 using HTTP
 using JSON
-using Base.ScopedValues
+
+if VERSION >= v"1.11"
+    using Base.ScopedValues
+elseif VERSION >= v"1.8"
+    import Pkg
+    Pkg.activate(".")
+    Pkg.add("ScopedValues")
+    using ScopedValues
+end
 
 const auth = ScopedValue(Dict("url" => "", "key" => ""))
 
