@@ -99,7 +99,7 @@ function py2ju(dictstr)
     that the request string does not contain single quotes (`'`) but only double quotes
     (`"`).
     Another option is to pass the request string directly. See the README.md for more examples.
-    """)
+    """, :py2ju)
     dictstr_cpy = replace(dictstr, "'" => "\"")
     lastcomma_pos = findlast(",", dictstr_cpy).start
 
