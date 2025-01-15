@@ -31,10 +31,10 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
     )
     
     data = JSON.parse(String(response.body))
-    job_endpoint = Dict(response.headers)["location"]
+    endpoint = Dict(response.headers)["location"]
 
     while data["status"] != "successful"
-        data = HTTP.request("GET", job_endpoint,
+        data = HTTP.request("GET", endpoint,
             ["PRIVATE-TOKEN" => creds["key"]]
         )
         data = JSON.parse(String(data.body))
@@ -55,7 +55,7 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
     end
 
     response = HTTP.request("GET",
-        job_endpoint * "/results",
+        endpoint * "/results",
         ["PRIVATE-TOKEN" => creds["key"]]
     )
     body = JSON.parse(String(response.body))
@@ -64,7 +64,7 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
     return data
 end
 
-retrieve(name, params::String, filename; wait=1.0) =
+retrieve(name, params::AbstractString, filename; wait=1.0) =
     retrieve(name, JSON.parse(params), filename; wait)
 
 """
