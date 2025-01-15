@@ -7,11 +7,24 @@ using Base.ScopedValues
 const auth = ScopedValue(Dict("url" => "", "key" => ""))
 
 """
-    CDScredentials()
+    credentials()
 
-Checks the default location for the cds credentials
+Attempt to find CDS credentials using different methods.
+The order of precedence is:
+    - direct credentials provided via a specific file.
+    - environmental variables: `CDSAPI_URL` and `CDSAPI_KEY`
+    - default credential file location: `$HOME/.cdsapirc`
+
+The expected file format is:
+url: https://yourendpoint
+key: your-personal-api-token
 """
 function credentials()
+
+    if !all(isempty, values(auth[]))
+        return auth[]
+    end
+
     url = get(ENV, "CDSAPI_URL", "")
     key = get(ENV, "CDSAPI_KEY", "")
 
@@ -24,18 +37,18 @@ function credentials()
             """)
         end
 
-        return CDScredentials(dotrc)
+        return credentials(dotrc)
     end
 
-    creds = Dict("url" => url, "key" => token)
+    creds = Dict("url" => url, "key" => key)
 end
 
 """
-    CDScredentials(file)
+    credentials(file)
 
 Parse the cds credentials from a provided file
 """
-function CDScredentials(file)
+function credentials(file)
     creds = Dict()
     open(realpath(file)) do f
         for line in readlines(f)
@@ -63,14 +76,8 @@ retrieve(name, params::AbstractString, filename; wait=1.0) =
 # CDSAPI.parse can be used to convert the request params into a
 # Julia dictionary for additional manipulation before retrieval
 function retrieve(name, params::AbstractDict, filename; wait=1.0)
-    creds = Dict()
-    open(joinpath(homedir(), ".cdsapirc")) do f
-        for line in readlines(f)
-            key, val = strip.(split(line, ':', limit=2))
-            creds[key] = val
-        end
-    end
-    creds = auth[]
+    
+    creds = credentials()
 
     try
         response = HTTP.request("POST",
