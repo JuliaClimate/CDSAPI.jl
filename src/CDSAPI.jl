@@ -93,6 +93,13 @@ Dict{String,Any} with 5 entries:
 ```
 """
 function py2ju(dictstr)
+    Base.depwarn("""
+    The function `py2ju` is deprecated in favor of `JSON.parse` directly.
+    To update, simply replace the `py2ju` with `JSON.parse`. Making sure
+    that the request string does not contain single quotes (`'`) but only double quotes
+    (`"`).
+    Another option is to pass the request string directly. See the README.md for more examples.
+    """)
     dictstr_cpy = replace(dictstr, "'" => "\"")
     lastcomma_pos = findlast(",", dictstr_cpy).start
 
