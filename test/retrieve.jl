@@ -1,20 +1,6 @@
 @testset "Retrieve" begin
     datadir = joinpath(@__DIR__, "data")
 
-    @testset "Bad requests errors are catched" begin
-
-        bad_request = """{
-            "this": "is",
-            "a": "bad",
-            "re": ["quest"]
-        }"""
-        dataset = "reanalysis-era5-single-levels"
-        bad_dataset = "bad-dataset"
-
-        @test_throws ArgumentError CDSAPI.retrieve(dataset, bad_request, "unreachable")
-        @test_throws ArgumentError CDSAPI.retrieve(bad_dataset, bad_request, "unreachable")
-    end
-
     @testset "ERA5 monthly preasure data" begin
         filepath = joinpath(datadir, "era5.grib")
         response = CDSAPI.retrieve("reanalysis-era5-pressure-levels-monthly-means",
@@ -78,5 +64,18 @@
         # cleanup
         rm(filepath)
         rm(ewq_file)
+    end
+
+    @testset "Bad requests errors are catched" begin
+        goodname = "reanalysis-era5-single-levels"
+        badname = "bad-dataset"
+        badrequest = """{
+            "this": "is",
+            "a": "bad",
+            "re": ["quest"]
+        }"""
+
+        @test_throws ArgumentError CDSAPI.retrieve(goodname, badrequest, "unreachable")
+        @test_throws ArgumentError CDSAPI.retrieve(badname, badrequest, "unreachable")
     end
 end

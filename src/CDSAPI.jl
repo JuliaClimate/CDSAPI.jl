@@ -32,7 +32,7 @@ function retrieve(name, params, filename; wait=1.0)
         if e isa HTTP.StatusError
             if e.status == 404
                 throw(ArgumentError("""
-                The requested dataset '$name' was not found
+                The requested dataset $name was not found.
                 """))
             elseif 400 ≤ e.status < 500
                 throw(ArgumentError("""
