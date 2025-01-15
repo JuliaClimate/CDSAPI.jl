@@ -9,13 +9,14 @@ const auth = ScopedValue(Dict("url" => "", "key" => ""))
 """
     credentials()
 
-Attempt to find CDS credentials using different methods.
-The order of precedence is:
-    - direct credentials provided via a specific file.
-    - environmental variables: `CDSAPI_URL` and `CDSAPI_KEY`
-    - default credential file location: `$HOME/.cdsapirc`
+Attempt to find CDS credentials using different methods:
 
-The expected file format is:
+    1. direct credentials provided via a specific file
+    2. environmental variables `CDSAPI_URL` and `CDSAPI_KEY`
+    3. credential file in home directory `$HOME/.cdsapirc`
+
+A credential file is a text file with two lines:
+
 url: https://yourendpoint
 key: your-personal-api-token
 """
