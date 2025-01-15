@@ -30,7 +30,7 @@ key: your-personal-api-token
 """
 function credentials()
 
-    if !any(isempty, values(auth[]))
+    if !isempty(auth[]["url"]) && !isempty(auth[]["key"])
         return auth[]
     end
 
