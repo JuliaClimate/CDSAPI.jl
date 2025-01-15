@@ -2,6 +2,50 @@ module CDSAPI
 
 using HTTP
 using JSON
+using Base.ScopedValues
+
+const auth = ScopedValue(Dict("url" => "", "key" => ""))
+
+"""
+    CDScredentials()
+
+Checks the default location for the cds credentials
+"""
+function CDScredentials()
+    url = get(ENV, "CDSAPI_URL", "")
+    token = get(ENV, "CDSAPI_KEY", "")
+
+    if any(isempty, (url, token))
+        dotrc = joinpath(homedir(), ".cdsapirc")
+        if !isfile(dotrc)
+            error("""
+            Missing credentials. Either add the CDSAPI_URL and CDSAPI_KEY env variables
+            or create a .cdsapirc file (default location: '$(homedir())').
+            """)
+        end
+
+        return CDScredentials(dotrc)
+    end
+
+    creds = Dict("url" => url, "key" => token)
+end
+
+"""
+    CDScredentials(file)
+
+Parse the cds credentials from a provided file
+"""
+function CDScredentials(file)
+    creds = Dict()
+    open(realpath(file)) do f
+        for line in readlines(f)
+            key, val = strip.(split(line, ':', limit=2))
+            creds[key] = val
+        end
+    end
+
+    return creds
+end
 
 """
     retrieve(name, params, filename; wait=1.0)
@@ -26,6 +70,7 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
             creds[key] = val
         end
     end
+    creds = auth[]
 
     try
         response = HTTP.request("POST",
