@@ -13,7 +13,9 @@ directory as `filename`.
 The client periodically requests the status of the retrieve request.
 `wait` is the maximum time (in seconds) between status updates.
 """
-function retrieve(name, params, filename; wait=1.0)
+function retrieve(name, params, filename; wait=1.0) end
+
+function retrieve(name, params::AbstractDict, filename; wait=1.0)
     creds = Dict()
     open(joinpath(homedir(), ".cdsapirc")) do f
         for line in readlines(f)
@@ -27,12 +29,12 @@ function retrieve(name, params, filename; wait=1.0)
         ["PRIVATE-TOKEN" => creds["key"]],
         body=JSON.json(Dict("inputs" => params))
     )
-    body = JSON.parse(String(response.body))
-    data = Dict("status" => "queued")
+    
+    data = JSON.parse(String(response.body))
+    job_endpoint = Dict(response.headers)["location"]
 
     while data["status"] != "successful"
-        data = HTTP.request("GET",
-            creds["url"] * "/retrieve/v1/jobs/" * string(body["jobID"]),
+        data = HTTP.request("GET", job_endpoint,
             ["PRIVATE-TOKEN" => creds["key"]]
         )
         data = JSON.parse(String(data.body))
@@ -53,7 +55,7 @@ function retrieve(name, params, filename; wait=1.0)
     end
 
     response = HTTP.request("GET",
-        creds["url"] * "/retrieve/v1/jobs/" * string(body["jobID"]) * "/results",
+        job_endpoint * "/results",
         ["PRIVATE-TOKEN" => creds["key"]]
     )
     body = JSON.parse(String(response.body))
@@ -61,6 +63,9 @@ function retrieve(name, params, filename; wait=1.0)
 
     return data
 end
+
+retrieve(name, params::String, filename; wait=1.0) =
+    retrieve(name, JSON.parse(params), filename; wait)
 
 """
     py2ju(dictstr)
