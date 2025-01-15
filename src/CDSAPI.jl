@@ -34,7 +34,7 @@ function retrieve(name, params, filename; wait=1.0)
                 throw(ArgumentError("""
                 The requested dataset '$name' was not found
                 """))
-            elseif 500 > e.status >= 400
+            elseif 400 ≤ e.status < 500
                 throw(ArgumentError("""
                 The request is in a bad format:
                 $params
