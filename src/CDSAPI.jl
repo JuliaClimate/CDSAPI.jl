@@ -29,10 +29,17 @@ function retrieve(name, params, filename; wait=1.0)
             body=JSON.json(Dict("inputs" => params))
         )
     catch e
-        if e isa HTTP.StatusError && e.status == 422
-            throw(ArgumentError("""
-            The request body provided is ill formed.
-            """))
+        if e isa HTTP.StatusError
+            if e.status == 404
+                throw(ArgumentError("""
+                The requested dataset '$name' was not found
+                """))
+            elseif 500 > e.status >= 400
+                throw(ArgumentError("""
+                The request is in a bad format:
+                $params
+                """))
+            end
         end
         throw(e)
     end
