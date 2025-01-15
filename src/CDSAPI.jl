@@ -22,11 +22,21 @@ function retrieve(name, params, filename; wait=1.0)
         end
     end
 
-    response = HTTP.request("POST",
-        creds["url"] * "/retrieve/v1/processes/$name/execute",
-        ["PRIVATE-TOKEN" => creds["key"]],
-        body=JSON.json(Dict("inputs" => params))
-    )
+    try
+        response = HTTP.request("POST",
+            creds["url"] * "/retrieve/v1/processes/$name/execute",
+            ["PRIVATE-TOKEN" => creds["key"]],
+            body=JSON.json(Dict("inputs" => params))
+        )
+    catch e
+        if e isa HTTP.StatusError && e.status == 422
+            throw(ArgumentError("""
+            The request body provided is ill formed.
+            """))
+        end
+        throw(e)
+    end
+
     body = JSON.parse(String(response.body))
     data = Dict("status" => "queued")
 
