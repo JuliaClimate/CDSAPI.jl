@@ -11,7 +11,7 @@ const auth = ScopedValue(Dict("url" => "", "key" => ""))
 
 Checks the default location for the cds credentials
 """
-function CDScredentials()
+function credentials()
     url = get(ENV, "CDSAPI_URL", "")
     key = get(ENV, "CDSAPI_KEY", "")
 
