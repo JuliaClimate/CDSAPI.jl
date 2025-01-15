@@ -21,7 +21,7 @@ Attempt to find CDS credentials using different methods:
 
     1. direct credentials provided via a specific file
     2. environmental variables `CDSAPI_URL` and `CDSAPI_KEY`
-    3. credential file in home directory `$HOME/.cdsapirc`
+    3. credential file in home directory `~/.cdsapirc`
 
 A credential file is a text file with two lines:
 
