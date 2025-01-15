@@ -15,7 +15,7 @@ function CDScredentials()
     url = get(ENV, "CDSAPI_URL", "")
     key = get(ENV, "CDSAPI_KEY", "")
 
-    if any(isempty, (url, token))
+    if isempty(url) || isempty(key)
         dotrc = joinpath(homedir(), ".cdsapirc")
         if !isfile(dotrc)
             error("""
