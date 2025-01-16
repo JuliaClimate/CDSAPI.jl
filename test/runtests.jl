@@ -8,9 +8,10 @@ datadir = joinpath(@__DIR__, "data")
 
 @testset "CDSAPI.jl" begin
     @testset "ERA5 monthly preasure data" begin
-        filepath = joinpath(datadir, "era5.grib")
-        response = CDSAPI.retrieve("reanalysis-era5-pressure-levels-monthly-means",
-            CDSAPI.py2ju("""{
+        filename = joinpath(datadir, "era5.grib")
+        response = CDSAPI.retrieve(
+            "reanalysis-era5-pressure-levels-monthly-means",
+            """{
                 'data_format': 'grib',
                 'product_type': 'monthly_averaged_reanalysis',
                 'variable': 'divergence',
@@ -22,26 +23,28 @@ datadir = joinpath(@__DIR__, "data")
                     180,
                 ],
                 'time': '00:00',
-            }"""),
-            filepath)
+            }""",
+            filename
+        )
 
         @test typeof(response) <: Dict
-        @test isfile(filepath)
+        @test isfile(filename)
 
-        GribFile(filepath) do datafile
+        GribFile(filename) do datafile
             data = Message(datafile)
             @test data["name"] == "Divergence"
             @test data["level"] == 1
             @test data["year"] == 2020
             @test data["month"] == 6
         end
-        rm(filepath)
+        rm(filename)
     end
 
     @testset "Sea ice type data" begin
-        filepath = joinpath(datadir, "sea_ice_type.zip")
-        response = CDSAPI.retrieve("satellite-sea-ice-edge-type",
-            CDSAPI.py2ju("""{
+        filename = joinpath(datadir, "sea_ice_type.zip")
+        response = CDSAPI.retrieve(
+            "satellite-sea-ice-edge-type",
+            """{
                 'variable': 'sea_ice_type',
                 'region': 'northern_hemisphere',
                 'cdr_type': 'cdr',
@@ -50,14 +53,15 @@ datadir = joinpath(@__DIR__, "data")
                 'day': '02',
                 'version': '3_0',
                 'data_format': 'zip',
-            }"""),
-            filepath)
+            }""",
+            filename
+        )
 
         @test typeof(response) <: Dict
-        @test isfile(filepath)
+        @test isfile(filename)
 
         # extract contents
-        zip_reader = ZipFile.Reader(filepath)
+        zip_reader = ZipFile.Reader(filename)
         ewq_fileio = zip_reader.files[1]
         ewq_file = joinpath(datadir, ewq_fileio.name)
         write(ewq_file, read(ewq_fileio))
@@ -68,7 +72,7 @@ datadir = joinpath(@__DIR__, "data")
         @test ncgetatt(ewq_file, "Global", "time_coverage_end") == "19790103T000000Z"
 
         # cleanup
-        rm(filepath)
+        rm(filename)
         rm(ewq_file)
     end
 
