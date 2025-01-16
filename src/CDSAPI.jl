@@ -6,14 +6,19 @@ using JSON
 """
     retrieve(name, params, filename; wait=1.0)
 
-Retrieves data for `name` from the Climate Data Store
-with the specified `params` and stores it in the current
-directory as `filename`.
+Retrieves dataset with given `name` from the Climate Data Store
+with the specified `params` (JSON string) and stores it in the
+given `filename`.
 
-The client periodically requests the status of the retrieve request.
-`wait` is the maximum time (in seconds) between status updates.
+The client periodically checks the status of the request and one
+can specify the maximum time in seconds to `wait` between updates.
 """
-function retrieve(name, params, filename; wait=1.0)
+retrieve(name, params::AbstractString, filename; wait=1.0) =
+    retrieve(name, JSON.parse(params), filename; wait)
+
+# CDSAPI.parse can be used to convert the request params into a
+# Julia dictionary for additional manipulation before retrieval
+function retrieve(name, params::AbstractDict, filename; wait=1.0)
     creds = Dict()
     open(joinpath(homedir(), ".cdsapirc")) do f
         for line in readlines(f)
@@ -44,12 +49,11 @@ function retrieve(name, params, filename; wait=1.0)
         throw(e)
     end
 
-    body = JSON.parse(String(response.body))
-    data = Dict("status" => "queued")
+    data = JSON.parse(String(response.body))
+    endpoint = Dict(response.headers)["location"]
 
     while data["status"] != "successful"
-        data = HTTP.request("GET",
-            creds["url"] * "/retrieve/v1/jobs/" * string(body["jobID"]),
+        data = HTTP.request("GET", endpoint,
             ["PRIVATE-TOKEN" => creds["key"]]
         )
         data = JSON.parse(String(data.body))
@@ -70,7 +74,7 @@ function retrieve(name, params, filename; wait=1.0)
     end
 
     response = HTTP.request("GET",
-        creds["url"] * "/retrieve/v1/jobs/" * string(body["jobID"]) * "/results",
+        endpoint * "/results",
         ["PRIVATE-TOKEN" => creds["key"]]
     )
     body = JSON.parse(String(response.body))
@@ -80,45 +84,12 @@ function retrieve(name, params, filename; wait=1.0)
 end
 
 """
-    py2ju(dictstr)
+    parse(string)
 
-Takes a Python dictionary as string and converts it into Julia's `Dict`
-
-# Examples
-```julia-repl
-julia> str = \"""{
-               'format': 'zip',
-               'variable': 'surface_air_temperature',
-               'product_type': 'climatology',
-               'month': '08',
-               'origin': 'era_interim',
-           }\""";
-
-julia> CDSAPI.py2ju(str)
-Dict{String,Any} with 5 entries:
-  "format"       => "zip"
-  "month"        => "08"
-  "product_type" => "climatology"
-  "variable"     => "surface_air_temperature"
-  "origin"       => "era_interim"
-
-```
+Equivalent to `JSON.parse(string)`.
 """
-function py2ju(dictstr)
-    dictstr_cpy = replace(dictstr, "'" => "\"")
-    lastcomma_pos = findlast(",", dictstr_cpy).start
+parse(string) = JSON.parse(string)
 
-    # if there's no pair after the last comma
-    if findnext(":", dictstr_cpy, lastcomma_pos) == nothing
-        # remove the comma
-        dictstr_cpy = dictstr_cpy[firstindex(dictstr_cpy):(lastcomma_pos-1)] * dictstr_cpy[(lastcomma_pos+1):lastindex(dictstr_cpy)]
-    end
-
-    # removes trailing comma from a list
-    rx = r",[ \n\r\t]*\]"
-    dictstr_cpy = replace(dictstr_cpy, rx => "]")
-
-    return JSON.parse(dictstr_cpy)
-end
+@deprecate py2ju(string) parse(string)
 
 end # module

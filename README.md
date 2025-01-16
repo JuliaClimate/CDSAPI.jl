@@ -26,36 +26,50 @@ Suppose that the `Show API request` button generated the following Python code:
 ```python
 #!/usr/bin/env python
 import cdsapi
-c = cdsapi.Client()
-c.retrieve("insitu-glaciers-elevation-mass",
-{
-"variable": "all",
-"product_type": "elevation_change",
-"file_version": "20170405",
-"format": "tgz"
-},
-"download.tar.gz")
+
+dataset = "reanalysis-era5-single-levels"
+request = {
+    "product_type": ["reanalysis"],
+    "variable": [
+        "10m_u_component_of_wind",
+        "10m_v_component_of_wind"
+    ],
+    "year": ["2024"],
+    "month": ["12"],
+    "day": ["06"],
+    "time": ["16:00"],
+    "data_format": "netcdf",
+    "download_format": "unarchived",
+    "area": [58, 6, 55, 9]
+}
+
+client = cdsapi.Client()
+client.retrieve(dataset, request).download()
 ```
 
-You can obtain the same results in Julia with the following code:
+You can obtain the same results in Julia:
 
 ```julia
 using CDSAPI
 
-CDSAPI.retrieve("insitu-glaciers-elevation-mass",
-CDSAPI.py2ju("""
-{
-"variable": "all",
-"product_type": "elevation_change",
-"file_version": "20170405",
-"format": "tgz"
-}
-"""),
-"download.tar.gz")
-```
+dataset = "reanalysis-era5-single-levels"
+request = """{
+    "product_type": ["reanalysis"],
+    "variable": [
+        "10m_u_component_of_wind",
+        "10m_v_component_of_wind"
+    ],
+    "year": ["2024"],
+    "month": ["12"],
+    "day": ["06"],
+    "time": ["16:00"],
+    "data_format": "netcdf",
+    "download_format": "unarchived",
+    "area": [58, 6, 55, 9]
+}""" # <- notice the multiline string.
 
-We've copied/pasted the code and called the `py2ju` function on the second argument of the `retrieve` function.
-The `py2ju` function simply converts the string containing a Python dictionary to an actual Julia dictionary.
+CDSAPI.retrieve(dataset, request, "download.nc")
+```
 
 Besides the downloaded file, the `retrieve` function also returns a dictionary with metadata:
 
