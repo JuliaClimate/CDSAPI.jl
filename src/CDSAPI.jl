@@ -6,12 +6,12 @@ using JSON
 """
     retrieve(name, params, filename; wait=1.0)
 
-Retrieves data for `name` from the Climate Data Store
-with the specified `params` and stores it in the current
-directory as `filename`.
+Retrieves dataset with given `name` from the Climate Data Store
+with the specified `params` string (JSON) and stores it in the
+given `filename`.
 
-The client periodically requests the status of the retrieve request.
-`wait` is the maximum time (in seconds) between status updates.
+The client periodically checks the status of the request and one
+can specify the maximum time in seconds to `wait` between updates.
 """
 function retrieve(name, params, filename; wait=1.0) end
 
