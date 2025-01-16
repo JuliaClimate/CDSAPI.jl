@@ -8,7 +8,6 @@ if VERSION >= v"1.11"
 elseif VERSION >= v"1.8"
     import Pkg
     Pkg.activate(".")
-    Pkg.add("ScopedValues")
     using ScopedValues
 end
 
