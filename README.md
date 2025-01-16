@@ -70,8 +70,6 @@ request = """{
 
 CDSAPI.retrieve(dataset, request, "download.nc")
 ```
-We've copied/pasted the python request dictionary and simply wrapped it in a multiline string (the triple quote `"""`) and the `retrieve` function
-will do the rest.
 Python dictionaries can be valid JSON strings, and the CDS requests builder is kind enough to make it so, (make sure the request string does not contain single quotes, but only double quotes)
 
 Therefore simply calling `JSON.parse(request)` will return a valid Julia dictionary. This is done for you automatically as the call above will be translated into `CDSAPI.retrieve(dataset, JSON.parse(request), "download.nc")`.
