@@ -7,7 +7,7 @@ using JSON
     retrieve(name, params, filename; wait=1.0)
 
 Retrieves dataset with given `name` from the Climate Data Store
-with the specified `params` string (JSON) and stores it in the
+with the specified `params` (JSON string) and stores it in the
 given `filename`.
 
 The client periodically checks the status of the request and one
@@ -16,11 +16,8 @@ can specify the maximum time in seconds to `wait` between updates.
 retrieve(name, params::AbstractString, filename; wait=1.0) =
     retrieve(name, JSON.parse(params), filename; wait)
 
-
-# If developing a request manipulation script, it would be beneficial to
-# manually parse the request string into a julia Dict (JSON.parse),
-# manipulate the resulting julia dictionary as required and
-# then pass that to the retrieve function instead.
+# CDSAPI.parse can be used to convert the request params into a
+# Julia dictionary for additional manipulation before retrieval
 function retrieve(name, params::AbstractDict, filename; wait=1.0)
     creds = Dict()
     open(joinpath(homedir(), ".cdsapirc")) do f
