@@ -16,6 +16,11 @@ can specify the maximum time in seconds to `wait` between updates.
 retrieve(name, params::AbstractString, filename; wait=1.0) =
     retrieve(name, JSON.parse(params), filename; wait)
 
+
+# If developing a request manipulation script, it would be beneficial to
+# manually parse the request string into a julia Dict (JSON.parse),
+# manipulate the resulting julia dictionary as required and
+# then pass that to the retrieve function instead.
 function retrieve(name, params::AbstractDict, filename; wait=1.0)
     creds = Dict()
     open(joinpath(homedir(), ".cdsapirc")) do f
