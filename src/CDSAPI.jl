@@ -13,7 +13,8 @@ given `filename`.
 The client periodically checks the status of the request and one
 can specify the maximum time in seconds to `wait` between updates.
 """
-function retrieve(name, params, filename; wait=1.0) end
+retrieve(name, params::AbstractString, filename; wait=1.0) =
+    retrieve(name, JSON.parse(params), filename; wait)
 
 function retrieve(name, params::AbstractDict, filename; wait=1.0)
     creds = Dict()
@@ -79,9 +80,6 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
 
     return data
 end
-
-retrieve(name, params::AbstractString, filename; wait=1.0) =
-    retrieve(name, JSON.parse(params), filename; wait)
 
 """
     py2ju(dictstr)

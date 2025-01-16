@@ -66,42 +66,9 @@ request = """{
     "data_format": "netcdf",
     "download_format": "unarchived",
     "area": [58, 6, 55, 9]
-}""" #<- notice the multiline string.
+}""" # <- notice the multiline string.
 
 CDSAPI.retrieve(dataset, request, "download.nc")
-```
-Python dictionaries can be valid JSON strings, and the CDS requests builder is kind enough to make it so, (make sure the request string does not contain single quotes, but only double quotes)
-
-Therefore simply calling `JSON.parse(request)` will return a valid Julia dictionary. This is done for you automatically as the call above will be translated into `CDSAPI.retrieve(dataset, JSON.parse(request), "download.nc")`.
-
-The previous method of calling `py2ju` is deprecated, but still available.
-
-The `retrieve` function also accepts a `Dict` directly in case one needs to manipulate a base request:
-```julia
-using CDSAPI
-
-dataset = "reanalysis-era5-single-levels"
-request = """{
-    "product_type": ["reanalysis"],
-    "variable": [
-        "10m_u_component_of_wind",
-        "10m_v_component_of_wind"
-    ],
-    "year": ["2024"],
-    "month": ["12"],
-    "day": ["06"],
-    "time": ["16:00"],
-    "data_format": "netcdf",
-    "download_format": "unarchived",
-    "area": [58, 6, 55, 9]
-}"""
-
-request_dict = JSON.parse(request)
-
-#= ... Some operations with request_dict ... =#
-
-CDSAPI.retrieve(dataset, request_dict, "download.nc")
-
 ```
 
 Besides the downloaded file, the `retrieve` function also returns a dictionary with metadata:
