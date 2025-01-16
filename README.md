@@ -47,7 +47,7 @@ client = cdsapi.Client()
 client.retrieve(dataset, request).download()
 ```
 
-You can obtain the same results in Julia by simply copying the request python dict and wrap it into a multiline string:
+You can obtain the same results in Julia:
 
 ```julia
 using CDSAPI
