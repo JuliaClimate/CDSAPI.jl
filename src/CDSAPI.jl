@@ -9,6 +9,8 @@ elseif VERSION >= v"1.8"
     using ScopedValues
 end
 
+export with
+
 const auth = ScopedValue(Dict("url" => "", "key" => ""))
 
 """
