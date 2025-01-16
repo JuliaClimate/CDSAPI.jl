@@ -9,8 +9,9 @@ datadir = joinpath(@__DIR__, "data")
 @testset "CDSAPI.jl" begin
     @testset "ERA5 monthly preasure data" begin
         filename = joinpath(datadir, "era5.grib")
-        response = CDSAPI.retrieve("reanalysis-era5-pressure-levels-monthly-means",
-            CDSAPI.py2ju("""{
+        response = CDSAPI.retrieve(
+            "reanalysis-era5-pressure-levels-monthly-means",
+            """{
                 "data_format": "grib",
                 "product_type": "monthly_averaged_reanalysis",
                 "variable": "divergence",
@@ -19,8 +20,9 @@ datadir = joinpath(@__DIR__, "data")
                 "month": "06",
                 "area": [90,-180,-90,180],
                 "time": "00:00"
-            }"""),
-            filename)
+            }""",
+            filename
+        )
 
         @test typeof(response) <: Dict
         @test isfile(filename)
@@ -37,8 +39,9 @@ datadir = joinpath(@__DIR__, "data")
 
     @testset "Sea ice type data" begin
         filename = joinpath(datadir, "sea_ice_type.zip")
-        response = CDSAPI.retrieve("satellite-sea-ice-edge-type",
-            CDSAPI.py2ju("""{
+        response = CDSAPI.retrieve(
+            "satellite-sea-ice-edge-type",
+            """{
                 "variable": "sea_ice_type",
                 "region": "northern_hemisphere",
                 "cdr_type": "cdr",
@@ -47,8 +50,9 @@ datadir = joinpath(@__DIR__, "data")
                 "day": "02",
                 "version": "3_0",
                 "data_format": "zip"
-            }"""),
-            filename)
+            }""",
+            filename
+        )
 
         @test typeof(response) <: Dict
         @test isfile(filename)
