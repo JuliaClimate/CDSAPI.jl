@@ -52,8 +52,8 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
         throw(e)
     end
 
-    body = JSON.parse(String(response.body))
-    data = Dict("status" => "queued")
+    data = JSON.parse(String(response.body))
+    endpoint = Dict(response.headers)["location"]
 
     while data["status"] != "successful"
         data = HTTP.request("GET", endpoint,
