@@ -82,52 +82,12 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
 end
 
 """
-    py2ju(dictstr)
+    parse(string)
 
-Takes a Python dictionary as string and converts it into Julia's `Dict`
-
-# Examples
-```julia-repl
-julia> str = \"""{
-               'format': 'zip',
-               'variable': 'surface_air_temperature',
-               'product_type': 'climatology',
-               'month': '08',
-               'origin': 'era_interim',
-           }\""";
-
-julia> CDSAPI.py2ju(str)
-Dict{String,Any} with 5 entries:
-  "format"       => "zip"
-  "month"        => "08"
-  "product_type" => "climatology"
-  "variable"     => "surface_air_temperature"
-  "origin"       => "era_interim"
-
-```
+Equivalent to `JSON.parse(string)`.
 """
-function py2ju(dictstr)
-    Base.depwarn("""
-    The function `py2ju` is deprecated in favor of `JSON.parse` directly.
-    To update, simply replace the `py2ju` with `JSON.parse`. Making sure
-    that the request string does not contain single quotes (`'`) but only double quotes
-    (`"`).
-    Another option is to pass the request string directly. See the README.md for more examples.
-    """, :py2ju)
-    dictstr_cpy = replace(dictstr, "'" => "\"")
-    lastcomma_pos = findlast(",", dictstr_cpy).start
+parse(string) = JSON.parse(string)
 
-    # if there's no pair after the last comma
-    if findnext(":", dictstr_cpy, lastcomma_pos) == nothing
-        # remove the comma
-        dictstr_cpy = dictstr_cpy[firstindex(dictstr_cpy):(lastcomma_pos-1)] * dictstr_cpy[(lastcomma_pos+1):lastindex(dictstr_cpy)]
-    end
-
-    # removes trailing comma from a list
-    rx = r",[ \n\r\t]*\]"
-    dictstr_cpy = replace(dictstr_cpy, rx => "]")
-
-    return JSON.parse(dictstr_cpy)
-end
+@deprecate py2ju(string) parse(string)
 
 end # module
