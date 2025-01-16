@@ -24,14 +24,30 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
         end
     end
 
-    response = HTTP.request("POST",
-        creds["url"] * "/retrieve/v1/processes/$name/execute",
-        ["PRIVATE-TOKEN" => creds["key"]],
-        body=JSON.json(Dict("inputs" => params))
-    )
-    
-    data = JSON.parse(String(response.body))
-    endpoint = Dict(response.headers)["location"]
+    try
+        response = HTTP.request("POST",
+            creds["url"] * "/retrieve/v1/processes/$name/execute",
+            ["PRIVATE-TOKEN" => creds["key"]],
+            body=JSON.json(Dict("inputs" => params))
+        )
+    catch e
+        if e isa HTTP.StatusError
+            if e.status == 404
+                throw(ArgumentError("""
+                The requested dataset $name was not found.
+                """))
+            elseif 400 ≤ e.status < 500
+                throw(ArgumentError("""
+                The request is in a bad format:
+                $params
+                """))
+            end
+        end
+        throw(e)
+    end
+
+    body = JSON.parse(String(response.body))
+    data = Dict("status" => "queued")
 
     while data["status"] != "successful"
         data = HTTP.request("GET", endpoint,

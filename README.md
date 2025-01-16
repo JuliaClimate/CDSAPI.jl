@@ -4,9 +4,9 @@
 
 This package provides access to the [Climate Data Store](https://cds.climate.copernicus.eu) (a.k.a. CDS) service.
 
-The CDS website provides a [Show API request](https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-pressure-levels-monthly-means?tab=form)
-button at the bottom of the download tab of each dataset. This button generates the code to download the dataset with the Python cdsapi module.
-We've designed this Julia package so that one could copy/paste the generated Python code with minimum modification in Julia.
+The CDS website provides a `Show API request` button at the bottom of the download tab of each dataset.
+This button generates the code to download the dataset with the Python cdsapi module. We've designed this
+Julia package so that one could copy/paste the generated Python code with minimum modification in Julia.
 
 ## Installation
 

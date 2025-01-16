@@ -65,4 +65,17 @@
         rm(filepath)
         rm(ewq_file)
     end
+
+    @testset "Bad requests errors are catched" begin
+        goodname = "reanalysis-era5-single-levels"
+        badname = "bad-dataset"
+        badrequest = """{
+            "this": "is",
+            "a": "bad",
+            "re": ["quest"]
+        }"""
+
+        @test_throws ArgumentError CDSAPI.retrieve(goodname, badrequest, "unreachable")
+        @test_throws ArgumentError CDSAPI.retrieve(badname, badrequest, "unreachable")
+    end
 end
