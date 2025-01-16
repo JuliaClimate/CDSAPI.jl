@@ -2,6 +2,7 @@ module CDSAPI
 
 using HTTP
 using JSON
+using Dates
 
 """
     retrieve(name, params, filename; wait=1.0)
@@ -52,12 +53,22 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
     data = JSON.parse(String(response.body))
     endpoint = Dict(response.headers)["location"]
 
+    laststatus = nothing
     while data["status"] != "successful"
+
         data = HTTP.request("GET", endpoint,
             ["PRIVATE-TOKEN" => creds["key"]]
         )
         data = JSON.parse(String(data.body))
-        @info "CDS request" dataset=name status=data["status"]
+
+        if data["status"] != laststatus
+            print("\e[1K\e[0E") # erase terminal line and reset cursor
+            @info "$(Dates.format(now(), dateformat"HH:MM:SS")) - CDS request" dataset=name status=data["status"]
+            laststatus = data["status"]
+        else
+            print('.')
+        end
+
 
         if data["status"] == "failed"
             throw(ErrorException("""
