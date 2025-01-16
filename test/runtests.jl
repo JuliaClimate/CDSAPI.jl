@@ -85,4 +85,26 @@ datadir = joinpath(@__DIR__, "data")
         @test_throws ArgumentError CDSAPI.retrieve(goodname, badrequest, "unreachable")
         @test_throws ArgumentError CDSAPI.retrieve(badname, badrequest, "unreachable")
     end
+
+    @testset "Credentials with scoped values" begin
+        filename = joinpath(datadir, "sea_ice_type.zip")
+        dataset = "satellite-sea-ice-edge-type"
+        request = """{
+                "variable": "sea_ice_type",
+                "region": "northern_hemisphere",
+                "cdr_type": "cdr",
+                "year": "1979",
+                "month": "01",
+                "day": "02",
+                "version": "3_0",
+                "data_format": "zip"
+            }"""
+
+        creds = CDSAPI.credentials() # grab the default ones
+        with( CDSAPI.auth => creds ) do
+            response = CDSAPI.retrieve(dataset, request, filename)
+        end
+        
+        rm(filename)
+    end
 end
