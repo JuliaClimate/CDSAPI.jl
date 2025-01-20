@@ -4,6 +4,71 @@ using HTTP
 using JSON
 using Dates
 
+if VERSION >= v"1.11"
+    using Base.ScopedValues
+elseif VERSION >= v"1.8"
+    using ScopedValues
+end
+
+export with
+
+const auth = ScopedValue(Dict("url" => "", "key" => ""))
+
+"""
+    credentials()
+
+Attempt to find CDS credentials using different methods:
+
+    1. direct credentials provided via a specific file
+    2. environmental variables `CDSAPI_URL` and `CDSAPI_KEY`
+    3. credential file in home directory `~/.cdsapirc`
+
+A credential file is a text file with two lines:
+
+url: https://yourendpoint
+key: your-personal-api-token
+"""
+function credentials()
+
+    if !isempty(auth[]["url"]) && !isempty(auth[]["key"])
+        return auth[]
+    end
+
+    url = get(ENV, "CDSAPI_URL", "")
+    key = get(ENV, "CDSAPI_KEY", "")
+
+    if isempty(url) || isempty(key)
+        dotrc = joinpath(homedir(), ".cdsapirc")
+        if !isfile(dotrc)
+            error("""
+            Missing credentials. Either add the CDSAPI_URL and CDSAPI_KEY env variables
+            or create a .cdsapirc file (default location: '$(homedir())').
+            """)
+        end
+
+        return credentials(dotrc)
+    end
+
+    creds = Dict("url" => url, "key" => key)
+end
+
+"""
+    credentials(file)
+
+Parse the cds credentials from a provided file
+"""
+function credentials(file)
+    creds = Dict()
+    open(realpath(file)) do f
+        for line in readlines(f)
+            key, val = strip.(split(line, ':', limit=2))
+            creds[key] = val
+        end
+    end
+
+    return creds
+end
+
 """
     retrieve(name, params, filename; wait=1.0)
 
@@ -20,13 +85,8 @@ retrieve(name, params::AbstractString, filename; wait=1.0) =
 # CDSAPI.parse can be used to convert the request params into a
 # Julia dictionary for additional manipulation before retrieval
 function retrieve(name, params::AbstractDict, filename; wait=1.0)
-    creds = Dict()
-    open(joinpath(homedir(), ".cdsapirc")) do f
-        for line in readlines(f)
-            key, val = strip.(split(line, ':', limit=2))
-            creds[key] = val
-        end
-    end
+    
+    creds = credentials()
 
     try
         response = HTTP.request("POST",
