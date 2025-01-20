@@ -55,17 +55,15 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
 
     laststatus = nothing
     while data["status"] != "successful"
-
         data = HTTP.request("GET", endpoint,
             ["PRIVATE-TOKEN" => creds["key"]]
         )
         data = JSON.parse(String(data.body))
 
         if data["status"] != laststatus
-            @info "$(Dates.format(now(), dateformat"HH:MM:SS")) - CDS request" dataset=name status=data["status"]
+            @info "CDS status update on $(now())" dataset = name status = data["status"]
             laststatus = data["status"]
         end
-
 
         if data["status"] == "failed"
             throw(ErrorException("""
