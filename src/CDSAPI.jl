@@ -61,7 +61,7 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
         data = JSON.parse(String(data.body))
 
         if data["status"] != laststatus
-            @info "CDS status update on $(now())" dataset = name status = data["status"]
+            @info "CDS request update on $(now())" dataset = name status = data["status"]
             laststatus = data["status"]
         end
 
