@@ -89,6 +89,8 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
         ["PRIVATE-TOKEN" => creds["key"]]
     )
     body = JSON.parse(String(response.body))
+
+    print("\e[1K\e[0E")
     HTTP.download(body["asset"]["value"]["href"], filename)
 
     return data
