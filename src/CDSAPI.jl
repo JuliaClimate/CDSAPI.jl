@@ -24,11 +24,12 @@ url: https://yourendpoint
 key: your-personal-api-token
 """
 function credentials()
-
+    # attempt to use ScopedValues provided by user
     if !isempty(auth[]["url"]) && !isempty(auth[]["key"])
         return auth[]
     end
 
+    # attempt to use values in environmental variables
     url = get(ENV, "CDSAPI_URL", "")
     key = get(ENV, "CDSAPI_KEY", "")
 

@@ -16,7 +16,7 @@ Please install the package with Julia's package manager:
 ] add CDSAPI
 ```
 
-## Basic Usage
+## Basic usage
 
 Make sure your `~/.cdsapirc` file exists or the env vars `CDSAPI_URL` and `CDSAPI_KEY` are set.
 Instructions on how to create the file for your user account can be found
