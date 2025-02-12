@@ -3,11 +3,7 @@ module CDSAPI
 using HTTP
 using JSON
 
-if VERSION >= v"1.11"
-    using Base.ScopedValues
-elseif VERSION >= v"1.8"
-    using ScopedValues
-end
+using ScopedValues
 
 export with
 
