@@ -5,7 +5,6 @@ using JSON
 
 using ScopedValues
 
-export with
 
 const auth = ScopedValue(Dict("url" => "", "key" => ""))
 
