@@ -17,10 +17,21 @@ Please install the package with Julia's package manager:
 ```
 
 ## Basic usage
+`CDSAPI.jl` will attempt to use CDS credentials using three different methods with the following priority:
 
-Make sure your `~/.cdsapirc` file exists or the env vars `CDSAPI_URL` and `CDSAPI_KEY` are set.
+    1. direct credentials provided via a specific file
+    2. environmental variables `CDSAPI_URL` and `CDSAPI_KEY`
+    3. default credential file in home directory `~/.cdsapirc`
+
+A valid credential file is a text file with two lines:
+```
+url: https://yourendpoint
+key: your-personal-api-token
+```
 Instructions on how to create the file for your user account can be found
 [here](https://cds.climate.copernicus.eu/how-to-api).
+
+For the following example to work, make sure your `~/.cdsapirc` file exists or the env vars `CDSAPI_URL` and `CDSAPI_KEY` are set.
 
 Suppose that the `Show API request` button generated the following Python code:
 ```python
