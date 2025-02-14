@@ -6,7 +6,8 @@ using JSON
 using ScopedValues
 
 
-const auth = ScopedValue(Dict("url" => "", "key" => ""))
+const key = ScopedValue("")
+const url = ScopedValue("")
 
 """
     credentials()
@@ -23,28 +24,32 @@ url: https://yourendpoint
 key: your-personal-api-token
 """
 function credentials()
-    # attempt to use ScopedValues provided by user
-    if !isempty(auth[]["url"]) && !isempty(auth[]["key"])
-        return auth[]
+
+    dotrc = joinpath(homedir(), ".cdsapirc")
+    if isfile(dotrc)
+        _url, _key = credentialsfromfile(dotrc)
+    else
+        _url = _key = ""
     end
 
-    # attempt to use values in environmental variables
-    url = get(ENV, "CDSAPI_URL", "")
-    key = get(ENV, "CDSAPI_KEY", "")
+    # overwrite with environmental variables
+    _url = get(ENV, "CDSAPI_URL", _url)
+    _key = get(ENV, "CDSAPI_KEY", _key)
 
-    if isempty(url) || isempty(key)
-        dotrc = joinpath(homedir(), ".cdsapirc")
-        if !isfile(dotrc)
-            error("""
-            Missing credentials. Either add the CDSAPI_URL and CDSAPI_KEY env variables
-            or create a .cdsapirc file (default location: '$(homedir())').
-            """)
-        end
+    # overwrite with ScopedValues provided by user
 
-        return credentials(dotrc)
+    _url = isempty(url[]) ? _url : url[]
+    _key = isempty(key[]) ? _key : key[]
+
+
+    if isempty(_url) || isempty(_key)
+        error("""
+        Missing credentials. Either add the CDSAPI_URL and CDSAPI_KEY env variables
+        or create a .cdsapirc file (default location: '$(homedir())').
+        """)
     end
 
-    creds = Dict("url" => url, "key" => key)
+    return _url, _key
 end
 
 """
@@ -52,7 +57,7 @@ end
 
 Parse the cds credentials from a provided file
 """
-function credentials(file)
+function credentialsfromfile(file)
     creds = Dict()
     open(realpath(file)) do f
         for line in readlines(f)
@@ -61,7 +66,16 @@ function credentials(file)
         end
     end
 
-    return creds
+    if !(haskey(creds, "url") || haskey(creds, "key")) # we can allow files with only one of the keys.
+        error("""
+        The credentials' file must have at least a `key` value or a `url` value in the following format:
+
+        url: https://yourendpoint
+        key: your-personal-api-token
+        """)
+    end
+
+    return get(creds, "url", ""), get(creds, "key", "")
 end
 
 """
@@ -81,12 +95,12 @@ retrieve(name, params::AbstractString, filename; wait=1.0) =
 # Julia dictionary for additional manipulation before retrieval
 function retrieve(name, params::AbstractDict, filename; wait=1.0)
     
-    creds = credentials()
+    _url, _key = credentials()
 
     try
         response = HTTP.request("POST",
-            creds["url"] * "/retrieve/v1/processes/$name/execute",
-            ["PRIVATE-TOKEN" => creds["key"]],
+            _url * "/retrieve/v1/processes/$name/execute",
+            ["PRIVATE-TOKEN" => _key],
             body=JSON.json(Dict("inputs" => params))
         )
     catch e
@@ -110,7 +124,7 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
 
     while data["status"] != "successful"
         data = HTTP.request("GET", endpoint,
-            ["PRIVATE-TOKEN" => creds["key"]]
+            ["PRIVATE-TOKEN" => _key]
         )
         data = JSON.parse(String(data.body))
         @info "CDS request" dataset=name status=data["status"]
@@ -131,7 +145,7 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
 
     response = HTTP.request("GET",
         endpoint * "/results",
-        ["PRIVATE-TOKEN" => creds["key"]]
+        ["PRIVATE-TOKEN" => _key]
     )
     body = JSON.parse(String(response.body))
     HTTP.download(body["asset"]["value"]["href"], filename)
