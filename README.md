@@ -103,17 +103,19 @@ using CDSAPI
 dataset = "reanalysis-era5-single-levels"
 request = """ #= some request =# """
 
-cred1 = CDSAPI.credentials("path/to/credential/file1")
-cred2 = CDSAPI.credentials("path/to/credential/file2")
+_url1, _key1 = CDSAPI.credentialsfromfile("path/to/credential/file1")
+_url2, _key2 = CDSAPI.credentialsfromfile("path/to/credential/file2")
 
-with( CDSAPI.auth => cred1 ) do
+with( CDSAPI.url => _url1, CDSAPI.key => _key1 ) do
     CDSAPI.retrieve(dataset, request, "download.nc")
 end
 
-with( CDSAPI.auth => cred2 ) do
+with( CDSAPI.url => _url2, CDSAPI.key => _key2 ) do
     CDSAPI.retrieve(dataset, request, "download.nc")
 end
 ```
+
+If the `url` or the `key` are not specified the default values obtained from the usual methods are used.
 
 [build-img]: https://img.shields.io/github/actions/workflow/status/JuliaClimate/CDSAPI.jl/CI.yml?branch=master&style=flat-square
 [build-url]: https://github.com/JuliaClimate/CDSAPI.jl/actions
