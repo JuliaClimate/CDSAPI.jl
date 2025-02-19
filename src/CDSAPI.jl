@@ -5,9 +5,8 @@ using JSON
 
 using ScopedValues
 
-
-const key = ScopedValue("")
-const url = ScopedValue("")
+const KEY = ScopedValue("")
+const URL = ScopedValue("")
 
 """
     credentials()
@@ -27,29 +26,29 @@ function credentials()
 
     dotrc = joinpath(homedir(), ".cdsapirc")
     if isfile(dotrc)
-        _url, _key = credentialsfromfile(dotrc)
+        url, key = credentialsfromfile(dotrc)
     else
-        _url = _key = ""
+        url = key = ""
     end
 
     # overwrite with environmental variables
-    _url = get(ENV, "CDSAPI_URL", _url)
-    _key = get(ENV, "CDSAPI_KEY", _key)
+    url = get(ENV, "CDSAPI_URL", url)
+    key = get(ENV, "CDSAPI_KEY", key)
 
     # overwrite with ScopedValues provided by user
 
-    _url = isempty(url[]) ? _url : url[]
-    _key = isempty(key[]) ? _key : key[]
+    url = isempty(URL[]) ? url : URL[]
+    key = isempty(KEY[]) ? key : KEY[]
 
 
-    if isempty(_url) || isempty(_key)
+    if isempty(url) || isempty(key)
         error("""
         Missing credentials. Either add the CDSAPI_URL and CDSAPI_KEY env variables
         or create a .cdsapirc file (default location: '$(homedir())').
         """)
     end
 
-    return _url, _key
+    return url, key
 end
 
 """

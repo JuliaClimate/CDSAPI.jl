@@ -19,7 +19,7 @@ Please install the package with Julia's package manager:
 ## Basic usage
 `CDSAPI.jl` will attempt to use CDS credentials using three different methods with the following priority:
 
-    1. direct credentials provided via a specific file
+    1. direct credentials provided through the scoped values `KEY` and `URL`
     2. environmental variables `CDSAPI_URL` and `CDSAPI_KEY`
     3. default credential file in home directory `~/.cdsapirc`
 
@@ -94,28 +94,31 @@ Dict{String,Any} with 6 entries:
 ```
 # Multiple credentials
 In case you want to use multiple api-tokens for different requests, you can specify the token to use with each different request.
-To do so you can have multiple versions of a `.cdsapirc` file stored somewhere. These files must be in the same format as the classic `.cdsapirc` file.
 
-To use them, parse them and pass the result to the scoped value `CDSAPI.auth`:
+Pass the desired values to the corresponding scoped values `CDSAPI.URL` and `CDSAPI.KEY`:
+If the `URL` or the `KEY` are not specified, the default values obtained from the default methods are used.
 ```julia
 using CDSAPI
 
 dataset = "reanalysis-era5-single-levels"
 request = """ #= some request =# """
 
-_url1, _key1 = CDSAPI.credentialsfromfile("path/to/credential/file1")
-_url2, _key2 = CDSAPI.credentialsfromfile("path/to/credential/file2")
+customkey = "an-example-of-key"
+customurl = "http://my-custom-endpoint"
 
-with( CDSAPI.url => _url1, CDSAPI.key => _key1 ) do
+# In this case the `URL` argument will be taken from the default locations
+# and only the KEY is overwritten.
+CDSAPI.with( CDSAPI.KEY => customkey ) do
     CDSAPI.retrieve(dataset, request, "download.nc")
 end
 
-with( CDSAPI.url => _url2, CDSAPI.key => _key2 ) do
+# In this case is the other way around, so all requests will be made with the
+# credentials (customurl, defaultkey)
+CDSAPI.with( CDSAPI.URL => customurl) do
     CDSAPI.retrieve(dataset, request, "download.nc")
 end
 ```
 
-If the `url` or the `key` are not specified the default values obtained from the usual methods are used.
 
 [build-img]: https://img.shields.io/github/actions/workflow/status/JuliaClimate/CDSAPI.jl/CI.yml?branch=master&style=flat-square
 [build-url]: https://github.com/JuliaClimate/CDSAPI.jl/actions
