@@ -93,6 +93,7 @@ Dict{String,Any} with 6 entries:
   "state"              => "completed"
 ```
 # Multiple credentials
+
 In case you want to use multiple api-tokens for different requests, you can specify the token to use with each different request.
 
 Pass the desired values to the corresponding scoped values `CDSAPI.URL` and `CDSAPI.KEY`:
