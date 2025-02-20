@@ -100,8 +100,8 @@ datadir = joinpath(@__DIR__, "data")
                 "data_format": "zip"
             }"""
 
-        creds = CDSAPI.credentials() # grab the default ones
-        with( CDSAPI.auth => creds ) do
+        url, key = CDSAPI.credentials() # grab the default ones
+        CDSAPI.with( CDSAPI.URL => url, CDSAPI.KEY => key ) do
             response = CDSAPI.retrieve(dataset, request, filename)
         end
         

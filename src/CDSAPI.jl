@@ -6,7 +6,7 @@ using JSON
 using ScopedValues
 
 const KEY = ScopedValue("")
-const URL = ScopedValue("")
+const URL = ScopedValue("https://cds.climate.copernicus.eu/api")
 
 """
     credentials()
@@ -94,12 +94,12 @@ retrieve(name, params::AbstractString, filename; wait=1.0) =
 # Julia dictionary for additional manipulation before retrieval
 function retrieve(name, params::AbstractDict, filename; wait=1.0)
     
-    _url, _key = credentials()
+    url, key = credentials()
 
     try
         response = HTTP.request("POST",
-            _url * "/retrieve/v1/processes/$name/execute",
-            ["PRIVATE-TOKEN" => _key],
+            url * "/retrieve/v1/processes/$name/execute",
+            ["PRIVATE-TOKEN" => key],
             body=JSON.json(Dict("inputs" => params))
         )
     catch e
@@ -123,7 +123,7 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
 
     while data["status"] != "successful"
         data = HTTP.request("GET", endpoint,
-            ["PRIVATE-TOKEN" => _key]
+            ["PRIVATE-TOKEN" => key]
         )
         data = JSON.parse(String(data.body))
         @info "CDS request" dataset=name status=data["status"]
@@ -144,7 +144,7 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
 
     response = HTTP.request("GET",
         endpoint * "/results",
-        ["PRIVATE-TOKEN" => _key]
+        ["PRIVATE-TOKEN" => key]
     )
     body = JSON.parse(String(response.body))
     HTTP.download(body["asset"]["value"]["href"], filename)
