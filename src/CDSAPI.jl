@@ -2,6 +2,7 @@ module CDSAPI
 
 using HTTP
 using JSON
+using Dates
 
 using ScopedValues
 
@@ -121,12 +122,17 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
     data = JSON.parse(String(response.body))
     endpoint = Dict(response.headers)["location"]
 
+    laststatus = nothing
     while data["status"] != "successful"
         data = HTTP.request("GET", endpoint,
             ["PRIVATE-TOKEN" => key]
         )
         data = JSON.parse(String(data.body))
-        @info "CDS request" dataset=name status=data["status"]
+
+        if data["status"] != laststatus
+            @info "CDS request update on $(now())" dataset = name status = data["status"]
+            laststatus = data["status"]
+        end
 
         if data["status"] == "failed"
             throw(ErrorException("""
@@ -147,6 +153,7 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
         ["PRIVATE-TOKEN" => key]
     )
     body = JSON.parse(String(response.body))
+
     HTTP.download(body["asset"]["value"]["href"], filename)
 
     return data
