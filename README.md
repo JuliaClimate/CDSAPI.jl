@@ -17,6 +17,7 @@ Please install the package with Julia's package manager:
 ```
 
 ## Basic usage
+
 `CDSAPI.jl` will attempt to use CDS credentials using three different methods with the following priority:
 
     1. direct credentials provided through the scoped values `KEY` and `URL`
