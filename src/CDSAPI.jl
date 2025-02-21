@@ -37,10 +37,8 @@ function credentials()
     key = get(ENV, "CDSAPI_KEY", key)
 
     # overwrite with ScopedValues provided by user
-
     url = isempty(URL[]) ? url : URL[]
     key = isempty(KEY[]) ? key : KEY[]
-
 
     if isempty(url) || isempty(key)
         error("""
@@ -55,7 +53,7 @@ end
 """
     credentials(file)
 
-Parse the cds credentials from a provided file
+Parse the CDS credentials from a provided `file`.
 """
 function credentialsfromfile(file)
     creds = Dict()
