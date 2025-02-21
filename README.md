@@ -20,7 +20,7 @@ Please install the package with Julia's package manager:
 
 `CDSAPI.jl` will attempt to use CDS credentials using three different methods with the following priority:
 
-    1. direct credentials provided through the scoped values `KEY` and `URL`
+    1. direct credentials provided through the scoped values `CDSAPI.KEY` and `CDSAPI.URL`
     2. environmental variables `CDSAPI_URL` and `CDSAPI_KEY`
     3. default credential file in home directory `~/.cdsapirc`
 
