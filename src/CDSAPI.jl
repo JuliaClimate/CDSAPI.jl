@@ -7,14 +7,14 @@ using Dates
 using ScopedValues
 
 const KEY = ScopedValue("")
-const URL = ScopedValue("https://cds.climate.copernicus.eu/api")
+const URL = ScopedValue("")
 
 """
     credentials()
 
 Attempt to find CDS credentials using different methods:
 
-    1. direct credentials provided via a specific file
+    1. direct credentials provided through the scoped values `KEY` and `URL`
     2. environmental variables `CDSAPI_URL` and `CDSAPI_KEY`
     3. credential file in home directory `~/.cdsapirc`
 
@@ -64,9 +64,9 @@ function credentialsfromfile(file)
         end
     end
 
-    if !(haskey(creds, "url") || haskey(creds, "key")) # we can allow files with only one of the keys.
+    if !(haskey(creds, "url") && haskey(creds, "key"))
         error("""
-        The credentials' file must have at least a `key` value or a `url` value in the following format:
+        The credentials' file must have both a `key` value and a `url` value in the following format:
 
         url: https://yourendpoint
         key: your-personal-api-token
