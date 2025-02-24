@@ -4,6 +4,78 @@ using HTTP
 using JSON
 using Dates
 
+using ScopedValues
+
+const URL = ScopedValue("")
+const KEY = ScopedValue("")
+
+"""
+    credentials()
+
+Attempt to find CDS credentials using different methods:
+
+    1. direct credentials provided through the scoped values `KEY` and `URL`
+    2. environmental variables `CDSAPI_URL` and `CDSAPI_KEY`
+    3. credential file in home directory `~/.cdsapirc`
+
+A credential file is a text file with two lines:
+
+url: https://yourendpoint
+key: your-personal-api-token
+"""
+function credentials()
+    # attempt to retrieve url/key from dotfile
+    dotrc = joinpath(homedir(), ".cdsapirc")
+    if isfile(dotrc)
+        url, key = credentialsfromfile(dotrc)
+    else
+        url = key = ""
+    end
+
+    # overwrite with env values
+    url = get(ENV, "CDSAPI_URL", url)
+    key = get(ENV, "CDSAPI_KEY", key)
+
+    # overwrite with scoped values
+    url = isempty(URL[]) ? url : URL[]
+    key = isempty(KEY[]) ? key : KEY[]
+
+    if isempty(url) || isempty(key)
+        error("""
+        Missing credentials. Either add the CDSAPI_URL and CDSAPI_KEY env variables
+        or create a .cdsapirc file (default location: '$(homedir())').
+        """)
+    end
+
+    return url, key
+end
+
+"""
+    credentials(file)
+
+Parse the CDS credentials from a provided `file`.
+"""
+function credentialsfromfile(file)
+    creds = Dict()
+    open(realpath(file)) do f
+        for line in readlines(f)
+            key, val = strip.(split(line, ':', limit=2))
+            creds[key] = val
+        end
+    end
+
+    if !(haskey(creds, "url") && haskey(creds, "key"))
+        error("""
+        The credentials' file must have both a `url` value and a `key` value in the following format:
+
+        url: https://yourendpoint
+        key: your-personal-api-token
+        """)
+    end
+
+    return get(creds, "url", ""), get(creds, "key", "")
+end
+
 """
     retrieve(name, params, filename; wait=1.0)
 
@@ -20,18 +92,12 @@ retrieve(name, params::AbstractString, filename; wait=1.0) =
 # CDSAPI.parse can be used to convert the request params into a
 # Julia dictionary for additional manipulation before retrieval
 function retrieve(name, params::AbstractDict, filename; wait=1.0)
-    creds = Dict()
-    open(joinpath(homedir(), ".cdsapirc")) do f
-        for line in readlines(f)
-            key, val = strip.(split(line, ':', limit=2))
-            creds[key] = val
-        end
-    end
+    url, key = credentials()
 
     try
         response = HTTP.request("POST",
-            creds["url"] * "/retrieve/v1/processes/$name/execute",
-            ["PRIVATE-TOKEN" => creds["key"]],
+            url * "/retrieve/v1/processes/$name/execute",
+            ["PRIVATE-TOKEN" => key],
             body=JSON.json(Dict("inputs" => params))
         )
     catch e
@@ -56,7 +122,7 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
     laststatus = nothing
     while data["status"] != "successful"
         data = HTTP.request("GET", endpoint,
-            ["PRIVATE-TOKEN" => creds["key"]]
+            ["PRIVATE-TOKEN" => key]
         )
         data = JSON.parse(String(data.body))
 
@@ -81,7 +147,7 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
 
     response = HTTP.request("GET",
         endpoint * "/results",
-        ["PRIVATE-TOKEN" => creds["key"]]
+        ["PRIVATE-TOKEN" => key]
     )
     body = JSON.parse(String(response.body))
 

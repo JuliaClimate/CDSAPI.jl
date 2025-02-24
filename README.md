@@ -16,13 +16,26 @@ Please install the package with Julia's package manager:
 ] add CDSAPI
 ```
 
-## Usage
+## Basic usage
 
-Make sure your `~/.cdsapirc` file exists. Instructions on how to create the file for your user account can be found
+The package will attempt to use CDS credentials using three different methods with the following priority:
+
+    1. direct credentials provided through the scoped values `CDSAPI.KEY` and `CDSAPI.URL`
+    2. environmental variables `CDSAPI_URL` and `CDSAPI_KEY`
+    3. default credential file in home directory `~/.cdsapirc`
+
+A valid credential file is a text file with two lines:
+```
+url: https://yourendpoint
+key: your-personal-api-token
+```
+
+Instructions on how to create the file for your user account can be found
 [here](https://cds.climate.copernicus.eu/how-to-api).
 
-Suppose that the `Show API request` button generated the following Python code:
+For the following example to work, make sure your `~/.cdsapirc` file exists or the env vars `CDSAPI_URL` and `CDSAPI_KEY` are set.
 
+Suppose that the `Show API request` button generated the following Python code:
 ```python
 #!/usr/bin/env python
 import cdsapi
@@ -48,7 +61,6 @@ client.retrieve(dataset, request).download()
 ```
 
 You can obtain the same results in Julia:
-
 ```julia
 using CDSAPI
 
@@ -81,6 +93,28 @@ Dict{String,Any} with 6 entries:
   "request_id"         => "04534ef1-874d-4c81-bb59-9b5effe63e9e"
   "content_length"     => 193660
   "state"              => "completed"
+```
+# Multiple credentials
+
+In case you want to use multiple credentials for different requests, pass the desired values to the corresponding scoped values `CDSAPI.URL` and `CDSAPI.KEY`:
+```julia
+using CDSAPI
+
+dataset = "reanalysis-era5-single-levels"
+request = """ #= some request =# """
+
+customkey = "an-example-of-key"
+customurl = "http://my-custom-endpoint"
+
+# overwrite KEY and use URL from other methods
+CDSAPI.with(CDSAPI.KEY => customkey) do
+    CDSAPI.retrieve(dataset, request, "download.nc")
+end
+
+# overwrite URL and use KEY from other methods
+CDSAPI.with(CDSAPI.URL => customurl) do
+    CDSAPI.retrieve(dataset, request, "download.nc")
+end
 ```
 
 [build-img]: https://img.shields.io/github/actions/workflow/status/JuliaClimate/CDSAPI.jl/CI.yml?branch=master&style=flat-square
