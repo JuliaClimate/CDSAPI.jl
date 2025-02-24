@@ -6,8 +6,8 @@ using Dates
 
 using ScopedValues
 
-const KEY = ScopedValue("")
 const URL = ScopedValue("")
+const KEY = ScopedValue("")
 
 """
     credentials()
@@ -24,7 +24,7 @@ url: https://yourendpoint
 key: your-personal-api-token
 """
 function credentials()
-
+    # attempt to retrieve url/key from dotfile
     dotrc = joinpath(homedir(), ".cdsapirc")
     if isfile(dotrc)
         url, key = credentialsfromfile(dotrc)
@@ -32,11 +32,11 @@ function credentials()
         url = key = ""
     end
 
-    # overwrite with environmental variables
+    # overwrite with env values
     url = get(ENV, "CDSAPI_URL", url)
     key = get(ENV, "CDSAPI_KEY", key)
 
-    # overwrite with ScopedValues provided by user
+    # overwrite with scoped values
     url = isempty(URL[]) ? url : URL[]
     key = isempty(KEY[]) ? key : KEY[]
 
@@ -66,7 +66,7 @@ function credentialsfromfile(file)
 
     if !(haskey(creds, "url") && haskey(creds, "key"))
         error("""
-        The credentials' file must have both a `key` value and a `url` value in the following format:
+        The credentials' file must have both a `url` value and a `key` value in the following format:
 
         url: https://yourendpoint
         key: your-personal-api-token
@@ -92,7 +92,6 @@ retrieve(name, params::AbstractString, filename; wait=1.0) =
 # CDSAPI.parse can be used to convert the request params into a
 # Julia dictionary for additional manipulation before retrieval
 function retrieve(name, params::AbstractDict, filename; wait=1.0)
-    
     url, key = credentials()
 
     try

@@ -18,7 +18,7 @@ Please install the package with Julia's package manager:
 
 ## Basic usage
 
-`CDSAPI.jl` will attempt to use CDS credentials using three different methods with the following priority:
+The package will attempt to use CDS credentials using three different methods with the following priority:
 
     1. direct credentials provided through the scoped values `CDSAPI.KEY` and `CDSAPI.URL`
     2. environmental variables `CDSAPI_URL` and `CDSAPI_KEY`
@@ -29,6 +29,7 @@ A valid credential file is a text file with two lines:
 url: https://yourendpoint
 key: your-personal-api-token
 ```
+
 Instructions on how to create the file for your user account can be found
 [here](https://cds.climate.copernicus.eu/how-to-api).
 
@@ -95,10 +96,7 @@ Dict{String,Any} with 6 entries:
 ```
 # Multiple credentials
 
-In case you want to use multiple api-tokens for different requests, you can specify the token to use with each different request.
-
-Pass the desired values to the corresponding scoped values `CDSAPI.URL` and `CDSAPI.KEY`:
-If the `URL` or the `KEY` are not specified, the default values obtained from the default methods are used.
+In case you want to use multiple credentials for different requests, pass the desired values to the corresponding scoped values `CDSAPI.URL` and `CDSAPI.KEY`:
 ```julia
 using CDSAPI
 
@@ -108,19 +106,16 @@ request = """ #= some request =# """
 customkey = "an-example-of-key"
 customurl = "http://my-custom-endpoint"
 
-# In this case the `URL` argument will be taken from the default locations
-# and only the KEY is overwritten.
-CDSAPI.with( CDSAPI.KEY => customkey ) do
+# overwrite KEY and use URL from other methods
+CDSAPI.with(CDSAPI.KEY => customkey) do
     CDSAPI.retrieve(dataset, request, "download.nc")
 end
 
-# In this case is the other way around, so all requests will be made with the
-# credentials (customurl, defaultkey)
-CDSAPI.with( CDSAPI.URL => customurl) do
+# overwrite URL and use KEY from other methods
+CDSAPI.with(CDSAPI.URL => customurl) do
     CDSAPI.retrieve(dataset, request, "download.nc")
 end
 ```
-
 
 [build-img]: https://img.shields.io/github/actions/workflow/status/JuliaClimate/CDSAPI.jl/CI.yml?branch=master&style=flat-square
 [build-url]: https://github.com/JuliaClimate/CDSAPI.jl/actions

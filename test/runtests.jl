@@ -101,7 +101,7 @@ datadir = joinpath(@__DIR__, "data")
             }"""
 
         url, key = CDSAPI.credentials() # grab the default ones
-        CDSAPI.with( CDSAPI.URL => url, CDSAPI.KEY => key ) do
+        CDSAPI.with(CDSAPI.URL => url, CDSAPI.KEY => key) do
             response = CDSAPI.retrieve(dataset, request, filename)
         end
         
