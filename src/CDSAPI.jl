@@ -97,7 +97,7 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
     try
         response = HTTP.request("POST",
             url * "/retrieve/v1/processes/$name/execute",
-            ["PRIVATE-TOKEN" => key],
+            ["PRIVATE-TOKEN" => key, "Content-Type" => "application/json"],
             body=JSON.json(Dict("inputs" => params))
         )
     catch e
