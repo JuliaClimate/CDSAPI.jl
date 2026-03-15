@@ -1,6 +1,7 @@
 using CDSAPI
-using ZipFile
 using GRIB, NetCDF
+using ZipFile
+using JSON
 
 using Test
 
@@ -24,7 +25,7 @@ datadir = joinpath(@__DIR__, "data")
             filename
         )
 
-        @test typeof(response) <: Dict
+        @test typeof(response) <: JSON.Object
         @test isfile(filename)
 
         GribFile(filename) do datafile
@@ -54,7 +55,7 @@ datadir = joinpath(@__DIR__, "data")
             filename
         )
 
-        @test typeof(response) <: Dict
+        @test typeof(response) <: JSON.Object
         @test isfile(filename)
 
         # extract contents
