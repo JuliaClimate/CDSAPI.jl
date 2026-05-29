@@ -1,6 +1,6 @@
 name = "CDSAPI"
 uuid = "8a7b9de3-9c00-473e-88b4-7eccd7ef2fea"
-version = "2.2.2"
+version = "2.3.0"
 authors = ["Micky Yun Chan <michan@redhat.com> and contributors"]
 
 [deps]
