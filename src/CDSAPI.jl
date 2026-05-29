@@ -25,30 +25,30 @@ url: https://yourendpoint
 key: your-personal-api-token
 """
 function credentials()
-    # attempt to retrieve url/key from dotfile
-    dotrc = joinpath(homedir(), ".cdsapirc")
-    if isfile(dotrc)
-        url, key = credentialsfromfile(dotrc)
-    else
-        url = key = ""
-    end
+  # attempt to retrieve url/key from dotfile
+  dotrc = joinpath(homedir(), ".cdsapirc")
+  if isfile(dotrc)
+    url, key = credentialsfromfile(dotrc)
+  else
+    url = key = ""
+  end
 
-    # overwrite with env values
-    url = get(ENV, "CDSAPI_URL", url)
-    key = get(ENV, "CDSAPI_KEY", key)
+  # overwrite with env values
+  url = get(ENV, "CDSAPI_URL", url)
+  key = get(ENV, "CDSAPI_KEY", key)
 
-    # overwrite with scoped values
-    url = isempty(URL[]) ? url : URL[]
-    key = isempty(KEY[]) ? key : KEY[]
+  # overwrite with scoped values
+  url = isempty(URL[]) ? url : URL[]
+  key = isempty(KEY[]) ? key : KEY[]
 
-    if isempty(url) || isempty(key)
-        error("""
-        Missing credentials. Either add the CDSAPI_URL and CDSAPI_KEY env variables
-        or create a .cdsapirc file (default location: '$(homedir())').
-        """)
-    end
+  if isempty(url) || isempty(key)
+    error("""
+    Missing credentials. Either add the CDSAPI_URL and CDSAPI_KEY env variables
+    or create a .cdsapirc file (default location: '$(homedir())').
+    """)
+  end
 
-    return url, key
+  url, key
 end
 
 """
@@ -57,24 +57,24 @@ end
 Parse the CDS credentials from a provided `file`.
 """
 function credentialsfromfile(file)
-    creds = Dict()
-    open(realpath(file)) do f
-        for line in readlines(f)
-            key, val = strip.(split(line, ':', limit=2))
-            creds[key] = val
-        end
+  creds = Dict()
+  open(realpath(file)) do f
+    for line in readlines(f)
+      key, val = strip.(split(line, ':', limit=2))
+      creds[key] = val
     end
+  end
 
-    if !(haskey(creds, "url") && haskey(creds, "key"))
-        error("""
-        The credentials' file must have both a `url` value and a `key` value in the following format:
+  if !(haskey(creds, "url") && haskey(creds, "key"))
+    error("""
+    The credentials' file must have both a `url` value and a `key` value in the following format:
 
-        url: https://yourendpoint
-        key: your-personal-api-token
-        """)
-    end
+    url: https://yourendpoint
+    key: your-personal-api-token
+    """)
+  end
 
-    return get(creds, "url", ""), get(creds, "key", "")
+  get(creds, "url", ""), get(creds, "key", "")
 end
 
 """
@@ -88,73 +88,68 @@ The client periodically checks the status of the request and one
 can specify the maximum time in seconds to `wait` between updates.
 """
 retrieve(name, params::AbstractString, filename; wait=1.0) =
-    retrieve(name, JSON.parse(params), filename; wait)
+  retrieve(name, JSON.parse(params), filename; wait)
 
 # CDSAPI.parse can be used to convert the request params into a
 # Julia dictionary for additional manipulation before retrieval
 function retrieve(name, params::AbstractDict, filename; wait=1.0)
-    url, key = credentials()
+  url, key = credentials()
 
-    try
-        response = HTTP.request("POST",
-            url * "/retrieve/v1/processes/$name/execute",
-            ["PRIVATE-TOKEN" => key, "Content-Type" => "application/json"],
-            body=JSON.json(Dict("inputs" => params))
-        )
-    catch e
-        if e isa HTTP.StatusError
-            if e.status == 404
-                throw(ArgumentError("""
-                The requested dataset $name was not found.
-                """))
-            elseif 400 ≤ e.status < 500
-                throw(ArgumentError("""
-                The request is in a bad format:
-                $params
-                """))
-            end
-        end
-        throw(e)
-    end
-
-    data = JSON.parse(String(response.body))
-    endpoint = Dict(response.headers)["Location"]
-
-    laststatus = nothing
-    while data["status"] != "successful"
-        data = HTTP.request("GET", endpoint,
-            ["PRIVATE-TOKEN" => key]
-        )
-        data = JSON.parse(String(data.body))
-
-        if data["status"] != laststatus
-            @info "CDS request update on $(now())" dataset = name status = data["status"]
-            laststatus = data["status"]
-        end
-
-        if data["status"] == "failed"
-            throw(ErrorException("""
-            Request to dataset $name failed.
-            Check https://cds.climate.copernicus.eu/requests
-            for more information (after login).
-            """
-            ))
-        end
-
-        if data["status"] != "successful"
-            sleep(wait)
-        end
-    end
-
-    response = HTTP.request("GET",
-        endpoint * "/results",
-        ["PRIVATE-TOKEN" => key]
+  try
+    response = HTTP.request("POST",
+      url * "/retrieve/v1/processes/$name/execute",
+      ["PRIVATE-TOKEN" => key, "Content-Type" => "application/json"],
+      body=JSON.json(Dict("inputs" => params))
     )
-    body = JSON.parse(String(response.body))
+  catch e
+    if e isa HTTP.StatusError
+      if e.status == 404
+        throw(ArgumentError("""
+        The requested dataset $name was not found.
+        """))
+      elseif 400 ≤ e.status < 500
+        throw(ArgumentError("""
+        The request is in a bad format:
+        $params
+        """))
+      end
+    end
+    throw(e)
+  end
 
-    Downloads.download(body["asset"]["value"]["href"], filename)
+  data = JSON.parse(String(response.body))
+  endpoint = Dict(response.headers)["Location"]
 
-    return data
+  laststatus = nothing
+  while data["status"] != "successful"
+    data = HTTP.request("GET", endpoint, ["PRIVATE-TOKEN" => key])
+    data = JSON.parse(String(data.body))
+
+    if data["status"] != laststatus
+      @info "CDS request update on $(now())" dataset = name status = data["status"]
+      laststatus = data["status"]
+    end
+
+    if data["status"] == "failed"
+      throw(ErrorException("""
+      Request to dataset $name failed.
+      Check https://cds.climate.copernicus.eu/requests
+      for more information (after login).
+      """
+      ))
+    end
+
+    if data["status"] != "successful"
+      sleep(wait)
+    end
+  end
+
+  response = HTTP.request("GET", endpoint * "/results", ["PRIVATE-TOKEN" => key])
+  body = JSON.parse(String(response.body))
+
+  Downloads.download(body["asset"]["value"]["href"], filename)
+
+  data
 end
 
 """
