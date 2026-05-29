@@ -12,7 +12,7 @@ ScopedValues = "7e506255-f358-4e82-b7e4-beb19740aa63"
 
 [compat]
 Dates = "1.10"
-Downloads = "1.7"
+Downloads = "1.6"
 HTTP = "2"
 JSON = "1"
 ScopedValues = "1.3"
