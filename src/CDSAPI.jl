@@ -3,6 +3,7 @@ module CDSAPI
 using HTTP
 using JSON
 using Dates
+using Downloads
 
 using ScopedValues
 
@@ -117,7 +118,7 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
     end
 
     data = JSON.parse(String(response.body))
-    endpoint = Dict(response.headers)["location"]
+    endpoint = Dict(response.headers)["Location"]
 
     laststatus = nothing
     while data["status"] != "successful"
@@ -151,7 +152,7 @@ function retrieve(name, params::AbstractDict, filename; wait=1.0)
     )
     body = JSON.parse(String(response.body))
 
-    HTTP.download(body["asset"]["value"]["href"], filename)
+    Downloads.download(body["asset"]["value"]["href"], filename)
 
     return data
 end
@@ -162,7 +163,5 @@ end
 Equivalent to `JSON.parse(string)`.
 """
 parse(string) = JSON.parse(string)
-
-@deprecate py2ju(string) parse(string)
 
 end # module
