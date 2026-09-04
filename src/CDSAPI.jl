@@ -60,6 +60,7 @@ function credentialsfromfile(file)
   creds = Dict()
   open(realpath(file)) do f
     for line in readlines(f)
+      isempty(strip(line)) && continue
       key, val = strip.(split(line, ':', limit=2))
       creds[key] = val
     end
